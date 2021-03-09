@@ -1,0 +1,212 @@
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+    />
+        
+    <title>Pizza Stop</title>
+
+    <link
+      id="favicon"
+      rel="icon"
+      href="https://cdn.glitch.com/4642a886-e4d8-4876-ad72-f6459983964c%2Ffavicon.ico?v=1614030485256"
+      type="image/x-icon"
+    />
+
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <marquee>
+      <h4>pizza stop "api"</h4>
+    </marquee>
+    
+    <p>
+      <a href="/">&lt; back to Pizza Stop</a>
+    </p>
+
+    <h2>
+      historic price
+    </h2>
+
+    <div>
+      <h3>
+        currency:
+      </h3>
+      <select
+        data-bind="options: availableCurrencies,
+                           value: currency"
+      ></select>
+
+      <h3>
+        quote currency:
+      </h3>
+      <select
+        data-bind="options: availableCurrencies,
+                           value: quoteCurrency"
+      ></select>
+      
+      <div class="input-group date">
+        <p>
+          <label for="begin-date">begin date</label>
+          <input
+            name="begin-date"
+            type="text"
+            class="form-control"
+            data-bind="datepicker: beginDate"
+          />
+        </p>
+        <span class="input-group-addon"
+          ><span class="glyphicon glyphicon-calendar"> </span>
+        </span>
+      </div>
+
+      <div class="input-group date">
+        <p>
+          <label for="begin-date">end date</label>
+          <input
+            name="begin-date"
+            type="text"
+            class="form-control"
+            data-bind="datepicker: endDate"
+          />
+        </p>
+        <span class="input-group-addon"
+          ><span class="glyphicon glyphicon-calendar"> </span>
+        </span>
+      </div>
+    </div>
+    
+    <button data-bind="click: fetchPrices, text: fetchButtonText">
+    </button>
+    <span data-bind="text: status"></span>
+    <span class="error" data-bind="text: error"></span>
+    <h4>
+      <span data-bind="text: count"></span> prices found.
+    </h4>
+    <h4>
+      average: <span data-bind="text: averagePriceFormatted"></span>
+    </h4>
+    <hr/>
+    
+    <input data-bind="value: key" placeholder="key"/>
+    
+    <button data-bind="click: fetchUser">
+      user
+    </button>
+    
+    <pre data-bind="text: rawResult"></pre>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"
+      integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.min.js"
+      integrity="sha512-vs7+jbztHoMto5Yd/yinM4/y2DOkPLt0fATcN+j+G4ANY2z4faIzZIOMkpBmWdcxt+596FemCh9M18NUJTZwvw=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+      integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script src="currencies.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/ko-extensions.js"></script>
+    <script src="js/api-client.js"></script>
+
+    <script>
+      if (!_.isFunction(httpRequest)){
+        var httpRequest = ()=>{};
+        console.error('function request was not loaded');
+      }
+      var ApiDemo = function() {
+        var ApiDemo = this;
+
+        _.extend(ApiDemo, {
+          currency: ko.observable('AAVE'),
+          quoteCurrency: ko.observable('BTC'),
+          availableCurrencies: ko.observableArray(CURRENCIES),
+          availableQuote2Currencies: ko.observableArray(QUOTE_2_CURRENCIES),
+          beginDate: ko.observable(),
+          endDate: ko.observable(),
+          prices: ko.observableArray([]),
+          rawResult: ko.observable(),
+          status: ko.observable(),
+          error: ko.observable(),
+          key: ko.observable(load('key')),
+          user:ko.observable()
+        });
+        
+        ApiDemo.key.extend({save:'key'});
+
+        _.extend(ApiDemo, {
+          averagePrice: ko.computed(() => {
+            return _.mean(ApiDemo.prices());
+          }),
+          count: ko.computed(()=>{
+            return _.size(ApiDemo.prices());
+          })
+        });
+
+        _.extend(ApiDemo, {
+          averagePriceFormatted: ko.computed(() => {
+            var avg = ApiDemo.averagePrice();
+            if (isNum(avg)){
+              return `${_.round(avg, 8)} ${ApiDemo.quoteCurrency()}`;
+            } else {
+              return "...";
+            }
+          }),
+          fetchButtonText: ko.computed(()=>{
+            return `Fetch ${ApiDemo.currency()}/${ApiDemo.quoteCurrency()} price`;
+          })
+        });
+        
+        function resetStatus(str){
+          
+            ApiDemo.status(str || "");
+            ApiDemo.error("");
+            ApiDemo.rawResult(null);
+        }
+        _.extend(ApiDemo, {
+          fetchPrices: ()=>{
+          },
+          fetchUser: ()=>{
+            resetStatus("fetching...");
+            var k = ApiDemo.key();
+            if (_.isString(k)){
+              api.user(k).then(u => {
+                ApiDemo.rawResult(nice(u));
+            })
+            .catch(err => {
+              ApiDemo.error(err.message);
+            })
+            }
+          }
+        })
+      };
+
+      ko.applyBindings(new ApiDemo());
+    </script>
+  </body>
+</html>

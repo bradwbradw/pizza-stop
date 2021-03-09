@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A crypto portfolio tracker that uses the latest price data to calculate value.  You can also use a timestamp, if you don't remember the price of an asset pair when you bought. Trading is risky. Always do your own research." />
+
+    <title>Pizza Stop</title>
+
+    <link
+      id="favicon"
+      rel="icon"
+      href="https://cdn.glitch.com/4642a886-e4d8-4876-ad72-f6459983964c%2Ffavicon.ico?v=1614030485256"
+      type="image/x-icon"
+    />
+
+    <link rel="stylesheet" href="/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Pizza Stop 🍕<i>crypto portfolio slice tracker</i></h1>
+      <span id="refresh"
+        ><button data-bind="click: refresh">
+          refresh all slices
+        </button></span
+      >
+      <div class="total-return">Total Return: <span data-bind="text: grandTotalReturn"></span> <span data-bind="text: selectedQuoteCurrency"></span></div><div>
+      sort by :
+        <select
+          data-bind="options: $root.availableSortings,
+                               value: selectedSorting"
+        ></select>
+      </div>
+    </header>
+    <!--
+      <div id="chart"></div>-->
+
+    <!-- ko foreach: slicesSorted -->
+    <div class="coin">
+      <h2 data-bind="text:ticker"></h2>
+      <span class="status" data-bind="text: status"></span>
+      <p class="error" data-bind="text: error"></p>
+      <p class="price-bought">
+        price <input data-bind="value: boughtPrice" />
+        <select
+          data-bind="options: $root.availableCurrencies,
+                               value: quoteCurrency"
+        ></select>
+      </p>
+      <p>amount: <input data-bind="value: amount" /></p>
+      <p>price now: <input data-bind="value: nowPrice" /></p>
+      <p>
+        value now: <br />
+        <span
+          data-bind="text: totalReturnValueFormatted"
+        ></span
+        >&nbsp;(<span data-bind="text: returnDiffFormatted"></span>)
+      </p>
+      <h3 data-bind="text: percentReturn"></h3>
+      <div class="return-line">
+        <div class="minus-line" data-bind="css:{length: minusLineLength}"></div>
+        <div class="plus-line" data-bind="css:{length: plusLineLength}"></div>
+      </div>
+      <h3>
+        <span data-bind="text: quote2ValueFormatted"></span>
+        <span data-bind="text: $root.selectedQuoteCurrency"></span>
+      </h3>
+      <button data-bind="click: $root.removeSlice">
+        delete
+      </button>
+      <button data-bind="click: refresh">
+        refresh
+      </button>
+    </div>
+    <!-- /ko -->
+
+    <h3>
+      new slice:
+    </h3>
+    <div class="coin new">
+      currency:
+      <select
+        data-bind="options: availableCurrencies,
+                           value: newSliceCurrency"
+      ></select>
+      <br/>
+      quote:
+      <select
+        data-bind="options: availableCurrencies,
+                           value: newSliceQuoteCurrency"
+      ></select>
+      <p>price:<input data-bind="value: newSliceBoughtPrice, hidden: newSliceFetchingPrice" />
+        <span data-bind="visible: newSliceFetchingPrice">...</span>
+        <div class="input-group date">
+
+              (optional) transaction date:<input
+                     name="begin-date"
+                     type="text"
+                     class="form-control"
+                     data-bind="datepicker: newSliceTransactionDate, event: {blur:newSliceGetPrice}"
+                     placeholder="use timestamp to find price"/>
+        </div>
+      </p>
+      <p>amount: <input data-bind="value: newSliceAmount" /></p>
+    </div>
+    <button data-bind="click: addSlice">
+      save
+    </button>
+    <hr />
+    <div data-bind="text: status">
+
+    </div>
+    <div data-bind="text: error">
+
+    </div>
+    <p>BTC-USD: <input data-bind="value: livePrices()['BTC/USDT']" /></p>
+    <p>ETH-USD: <input data-bind="value: livePrices()['ETH/USDT']" /></p>
+    <h3>your reference currency:</h3>
+    <select
+      data-bind="options: availableQuote2Currencies,
+                         value: selectedQuoteCurrency"
+    ></select>
+
+    <hr />
+
+    <h2>
+      explore pizza stop
+    </h2>
+
+    <ul>
+      <li><a href="api-demo.html">api</a></li>
+      <li><a href="whales.html">whales</a></li>
+    </ul>
+
+
+    <!--
+<coingecko-coin-converter-widget  coin-id="binancecoin" currency="usd" background-color="#ffffff" font-color="#4c4c4c" locale="en"></coingecko-coin-converter-widget>
+-->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"
+      integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.min.js"
+      integrity="sha512-vs7+jbztHoMto5Yd/yinM4/y2DOkPLt0fATcN+j+G4ANY2z4faIzZIOMkpBmWdcxt+596FemCh9M18NUJTZwvw=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+      integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script src="currencies.js" ></script>
+    <script src="js/functions.js"></script>
+    <script src="js/ko-extensions.js" ></script>
+    <script src="js/api-client.js" ></script>
+
+    <script src="js/pizza.js"></script>
+    <script src="js/exchange.js"></script>
+  <!--  
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/ccxt@1.41.8/dist/ccxt.browser.js"
+    ></script>
+-->
+  </body>
+</html>

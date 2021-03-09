@@ -1,0 +1,143 @@
+/* styles */
+/* called by your view template */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: helvetica, arial, sans-serif;
+  margin: 2em;
+}
+
+h1 {
+  font-weight:700;
+  color: darkred;
+}
+
+.total-return{
+  font-size:1.3em;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+p {
+  max-width: 600px;
+}
+
+form {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: cyan;
+  display: inline-block;
+  width: 100%;
+  max-width: 340px;
+  border-radius: 3px;
+}
+
+input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 5px;
+  width: 100%;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+button {
+  font-size: 16px;
+  border-radius: 3px;
+  background-color: lightgrey;
+  border: 1px solid grey;
+  box-shadow: 2px 2px teal;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: yellow;
+}
+
+button:active {
+  box-shadow: none;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+footer {
+  margin-top: 50px;
+  padding-top: 25px;
+  border-top: 1px solid lightgrey;
+}
+
+.status {
+  text-align:right;
+  background:black;
+  color:white;
+}
+.error {
+  text-align:right;
+  color: red;
+}
+#raw{
+  background-color:lightgrey;
+}
+
+.time{
+  font-size:smaller;
+  margin-left:3em;
+}
+
+#chart{
+  
+      width: 100%;
+      height: 400px;
+      margin: 0;
+      padding: 0;
+}
+
+p {
+  margin:0;
+}
+
+.coin {
+  background: tomato;
+  border: 2px solid firebrick;
+  width:16em;
+  padding:0.5em;
+  margin:0.3em;
+  display:inline-block;
+  border-radius: 5px 5px 5px 5px;
+}
+
+.coin h3 {
+  margin:0;
+}
+.coin.new{
+  background:lightgrey;
+}
+
+input, select{
+  width:45%;
+  display:inline;
+  height:1.75em;
+}
+
+.return-line{
+  height:4px;
+  width:100%;
+}
+
+.return-line minus-line {
+  height:100%;
+  background-color:green;
+}
+
+.return-line plus_line {
+  height:100%;
+  backgroud-color:red;
+}
