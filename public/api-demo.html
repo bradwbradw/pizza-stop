@@ -12,7 +12,7 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
     />
-        
+
     <title>Pizza Stop</title>
 
     <link
@@ -28,7 +28,7 @@
     <marquee>
       <h4>pizza stop "api"</h4>
     </marquee>
-    
+
     <p>
       <a href="/">&lt; back to Pizza Stop</a>
     </p>
@@ -53,7 +53,7 @@
         data-bind="options: availableCurrencies,
                            value: quoteCurrency"
       ></select>
-      
+
       <div class="input-group date">
         <p>
           <label for="begin-date">begin date</label>
@@ -84,7 +84,7 @@
         </span>
       </div>
     </div>
-    
+
     <button data-bind="click: fetchPrices, text: fetchButtonText">
     </button>
     <span data-bind="text: status"></span>
@@ -96,13 +96,13 @@
       average: <span data-bind="text: averagePriceFormatted"></span>
     </h4>
     <hr/>
-    
+
     <input data-bind="value: key" placeholder="key"/>
-    
+
     <button data-bind="click: fetchUser">
       user
     </button>
-    
+
     <pre data-bind="text: rawResult"></pre>
 
     <script
@@ -153,10 +153,10 @@
           rawResult: ko.observable(),
           status: ko.observable(),
           error: ko.observable(),
-          key: ko.observable(load('key')),
-          user:ko.observable()
+          user:ko.observable(),
+          key: ko.observable(load('key'))
         });
-        
+
         ApiDemo.key.extend({save:'key'});
 
         _.extend(ApiDemo, {
@@ -181,9 +181,9 @@
             return `Fetch ${ApiDemo.currency()}/${ApiDemo.quoteCurrency()} price`;
           })
         });
-        
+
         function resetStatus(str){
-          
+
             ApiDemo.status(str || "");
             ApiDemo.error("");
             ApiDemo.rawResult(null);
@@ -195,7 +195,7 @@
             resetStatus("fetching...");
             var k = ApiDemo.key();
             if (_.isString(k)){
-              api.user(k).then(u => {
+              api.user(k).fetch().then(u => {
                 ApiDemo.rawResult(nice(u));
             })
             .catch(err => {

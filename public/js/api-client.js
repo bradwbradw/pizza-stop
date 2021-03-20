@@ -14,7 +14,7 @@ var httpRequest = function(url, params, opts) {
       return key + "=" + val.toISOString()
     }
     if (_.isObject(val) || _.isArray(val)){
-      return key + "=" + JSON.stringify(val); 
+      return key + "=" + JSON.stringify(val);
     } else {
       return key + "=" + val;
     }
@@ -33,10 +33,18 @@ var httpRequest = function(url, params, opts) {
 
 var api = {
   user: (key)=>{
-    return httpRequest('user', {
-      apiKey:key,
-      pairArray:['DOGE/BTC', 'LTC/BTC', 'HOT/ETH']
-    })
+    return {
+      fetch:(pairs)=> {
+        if (_.isArray(pairs)){
+          return httpRequest('user', {
+            apiKey:key,
+            pairArray:pairs
+          });
+        } else {
+          return Promise.reject(new Error("please provide a list of pairs for this user"));
+        }
+    }
+  }
   }
 }
 

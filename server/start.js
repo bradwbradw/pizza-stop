@@ -14,8 +14,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+require('dotenv').config();
+
 const db = require('./db.js');
 const user = require('./user.js');
+
+
+var port = process.env.PORT;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -27,7 +32,7 @@ app.use(function (req, res, next) {
     try {
       parsedObj = JSON.parse(_.last(pair));
     } catch (err){
-     // console.error(err); 
+     // console.error(err);
     }
     // if parsedObj is array or obj, set special req property for access later
     if (_.isArray(parsedObj) || _.isObject(parsedObj)){
@@ -39,20 +44,20 @@ app.use(function (req, res, next) {
 
 app.post("/portfolio", (request, response ) => {
   var portfolio = JSON.stringify(request.body, null, 2);
-  
+
   response.json({portfolio});
 });
 
 
 app.get("/", (request, response) => {
   //response.send("boogie");
-  fs.readFile(`${__dirname}/public/index.html`, 'utf8', 
+  fs.readFile(`${__dirname}/public/index.html`, 'utf8',
               (err, file) => {
       if (err) throw err;
 //      console.log(data);
     response.send(file);
     });
-    
+
 });
 var opts = {
   enableRateLimit:true
@@ -66,7 +71,7 @@ var exchanges = {
 }
 
 app.get("/price-data", (request, response) => {
-  
+
   _.defaults(request.query, {
     currency:'ETH',
     quoteCurrency:'USD',
@@ -75,24 +80,24 @@ app.get("/price-data", (request, response) => {
     tradesPerMinute: 0.2,
     params:{}
   });
-  
+
   var millis;
   var end;
-  
+
   try {
     var millis = parseInt(moment(request.query.beginDate).format('x'));
     var end = parseInt(moment(request.query.endDate).format('x'));
   } catch (err){
     console.error(err);
   }
-  
+
   console.log(JSON.stringify({millis}, null, 2));
   var interval = _.round(60000 / request.query.tradesPerMinute);
   console.log(`${request.query.tradesPerMinute} trades pet minute works out to a ${interval} ms interval`)
   var fetches = _.range(millis, end, interval);
-  
+
   if(_.isNumber(millis) && _.isNumber(end)){
-    
+
     getPrices(request.query,fetches)
     .then(r => {
       response.json(r);
@@ -103,7 +108,7 @@ app.get("/price-data", (request, response) => {
   } else {
     response.status(400).json({message:`got start millis "${millis}" and end millis "${end}"`})
   }
-  
+
   /*
   fetchBatch({symbol:request.query.symbol, millis, end})
     .then(trades => {
@@ -141,9 +146,9 @@ app.get("/user", (req, res) => {
   }
 });
 function getPrices(query, milliList){
-  
+
   return new Promise((resolve, reject) => {
- 
+
     db({
       currency: query.currency,
       quoteCurrency:query.quoteCurrency
@@ -152,7 +157,7 @@ function getPrices(query, milliList){
 
       var p = Promise.resolve();
       var data = [];
-      
+
       _.each(milliList, m => {
         p = p.then(() => {return getCacheOrFetch(db,m);})
           .then((d) => {
@@ -177,7 +182,7 @@ function getPrices(query, milliList){
 
 
 function getCacheOrFetch(db, m) {
-  
+
   return new Promise((resolve, reject) => {
     db.get(m)
     .then(result =>{
@@ -199,7 +204,7 @@ function getCacheOrFetch(db, m) {
             db.upsert([{millis:m, price}])
             .then(resolve)
             .catch(reject);
-            
+
           } else {
             reject('bad price fetched from bitfinex: '+ price)
           }
@@ -239,15 +244,15 @@ function fetchData({symbol, since, limit, params}){
     console.log('bitfinex failed. trying binance...', {symbol, since, limit, params});
     return exchanges.binance.fetchTrades(symbol, since, limit, params);
   })
-  .catch(err => {  
+  .catch(err => {
     console.log('binance failed. trying huobi...', {symbol, since, limit, params});
     return exchanges.huobi.fetchTrades(symbol, since, limit, params);
   })
-  .catch(err => {  
+  .catch(err => {
     console.log('huobi failed. trying coinbase...', {symbol, since, limit, params});
     return exchanges.coinbase.fetchTrades(symbol, since, limit, params);
   })
-  .catch(err => {  
+  .catch(err => {
     console.log('coinbase failed. trying kraken...', {symbol, since, limit, params});
     return exchanges.kraken.fetchTrades(symbol, since, limit, params);
   })
@@ -263,11 +268,11 @@ function cleanTrades(data){
 
 app.get('/test-db', (req, res) => {
   var dolphinCoinPrices = db({currency:'Dolph', quoteCurrency:'USD'});
-  
+
   dolphinCoinPrices
     .then((db) => {
       db.upsert([
-          {millis:12345, price: 3.320000001}, 
+          {millis:12345, price: 3.320000001},
           {millis:12346, price: 3.3300010001},
           {millis:12347, price: 3.334000091}
       ])
@@ -323,7 +328,7 @@ app.get("/`candlesticks`", (request, response) => {
 });
 
 function fetchCandleSticks({symbol, timeframe, since, limit, params}, response){
-  
+
   exchanges.bitfinex.fetchOHLCV(symbol, timeframe, since, limit, params)
     .then( (data)=>{
     console.log('candlesticks?',data);

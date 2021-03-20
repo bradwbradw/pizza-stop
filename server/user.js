@@ -5,15 +5,16 @@ const moment = require('moment');
 const ccxt = require ('@mareksokol/ccxt');
 
 module.exports = ({apiKey}) => {
-  
+
   if (apiKey == process.env.SECRET){
     return Promise.resolve(user());
   } else {
     return Promise.reject({message:"key mismatch"});
   }
-  
-}
 
+}
+console.log("brad kraken read:"+process.env.BRAD_KRAKEN_READ);
+console.log("brad kraken secret:"+process.env.BRAD_KRAKEN_SECRET);
 function user(){
   var exchanges = {
     kraken: new ccxt.kraken({
@@ -46,15 +47,15 @@ function user(){
             _.extend(result, o);
           });
           return result;
-          
+
         });
-        
+
         function getPairHistory(pair){
           return new Promise((resolve, reject) => {
             debugger;
             var ps = _.map(exchangeArray, e => {
               if(_.get(exchanges, e)){
-                
+
                 return exchanges[e].fetchMyTrades(pair);
               } else {
                 console.error(`getPairHistory failed for exchange ${e}`);
@@ -80,13 +81,13 @@ function user(){
                   if (trade.side == "buy"){
                     console.log(`bought ${trade.amount} ${trade.symbol? trade.symbol : "[?]"} at ${trade.price}`);
                     netCount = netCount + trade.amount;
-                    return trade.amount * trade.price; 
+                    return trade.amount * trade.price;
                   } else if (trade.side == "sell"){
-                    
+
                     console.log(`adding sell ${trade.amount} at ${trade.price}`);
                     netCount = netCount - trade.amount;
                     return (-1)*trade.amount *trade.price;
-                    
+
                   }
                 });
 
@@ -104,11 +105,21 @@ function user(){
         }
 
       }
+    },
+    exchangeKeys:{
+      kraken:{
+        apiKey: process.env.BRAD_KRAKEN_READ,
+        secret: process.env.BRAD_KRAKEN_SECRET
+      },
+      binance:{
+        apiKey: process.env.BRAD_BINANCE_READ,
+        secret: process.env.BRAD_BINANCE_SECRET
+      }
     }
-});
+  });
 }
 function cleanTrades(ts){
-  return _.map(ts, t =>{  
+  return _.map(ts, t =>{
     return _.pick(t,"datetime symbol side price amount".split(' '));
   })
 }
