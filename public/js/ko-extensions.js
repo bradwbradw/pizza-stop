@@ -61,7 +61,9 @@ ko.bindingHandlers.datepicker = {
 ko.extenders.save = function(target, key) {
   target.subscribe(function(newValue) {
     console.log(key + ": " + newValue);
-    localStorage.setItem(key, ko.toJSON(newValue));
+    var data = ko.toJS(newValue);
+    console.log('saving', data);
+    localStorage.setItem(key, ko.toJSON(data));
   });
   if (_.isNumber(target)) {
     return target * 1;
@@ -69,4 +71,3 @@ ko.extenders.save = function(target, key) {
     return target;
   }
 };
-

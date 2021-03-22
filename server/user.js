@@ -68,37 +68,7 @@ function user(){
               return _.flatten([kraken, binance])
             })
             .then(cleanTrades)
-            .then(t =>{
-
-              var buyCount = 0;
-              var buySum = _.sumBy(_.filter(t,{side:"buy"}), (trade) => {
-                  console.log(`summing ${trade.amount} at ${trade.price}`);
-                  buyCount = buyCount + trade.amount;
-                  return trade.amount * trade.price;
-                });
-              var netCount = 0;
-              var netSum = _.sumBy(t, (trade) => {
-                  if (trade.side == "buy"){
-                    console.log(`bought ${trade.amount} ${trade.symbol? trade.symbol : "[?]"} at ${trade.price}`);
-                    netCount = netCount + trade.amount;
-                    return trade.amount * trade.price;
-                  } else if (trade.side == "sell"){
-
-                    console.log(`adding sell ${trade.amount} at ${trade.price}`);
-                    netCount = netCount - trade.amount;
-                    return (-1)*trade.amount *trade.price;
-
-                  }
-                });
-
-              return {
-                trades:t,
-                buyAverage: buySum/buyCount,
-                buyCount,
-                netAverage: netSum/netCount,
-                netCount
-              }
-            })
+            .then()
             .then(resolve)
             .catch(reject)
           });
@@ -117,9 +87,4 @@ function user(){
       }
     }
   });
-}
-function cleanTrades(ts){
-  return _.map(ts, t =>{
-    return _.pick(t,"datetime symbol side price amount".split(' '));
-  })
 }

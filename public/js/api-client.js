@@ -32,9 +32,9 @@ var httpRequest = function(url, params, opts) {
 }
 
 var api = {
-  user: (key)=>{
+  user: (key) => {
     return {
-      fetch:(pairs)=> {
+      fetch:(pairs) => {
         if (_.isArray(pairs)){
           return httpRequest('user', {
             apiKey:key,
@@ -43,9 +43,26 @@ var api = {
         } else {
           return Promise.reject(new Error("please provide a list of pairs for this user"));
         }
+      },
+      trades:(exchange, pair) => {
+        return httpRequest(`ccxt/${exchange}/fetchMyTrades`,{
+          key,
+          methodParams:[pair]
+        })
+        .catch(err => {
+          return [];
+        })
+        .then(cleanTrades)
+      }
     }
   }
-  }
+}
+
+
+function cleanTrades(ts){
+  return _.map(ts, t =>{
+    return _.pick(t,"datetime symbol side price amount".split(' '));
+  })
 }
 
 //Window.httpRequest = request;

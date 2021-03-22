@@ -50,7 +50,7 @@ module.exports = app => {
         if (!_.isObject(lib)) {
           var e = _.get(ccxt, exchange);
           if (_.isFunction(e)) {
-            console.log("making new exchange lib "+e);
+            console.log("making new exchange lib "+exchange);
             lib = new e({ enableRateLimit: true });
             _.set(exchanges, exchange, lib);
           }
@@ -80,19 +80,19 @@ module.exports = app => {
 
             console.log("method params", JSON.stringify(methodParams, null, 2));
 
-            if (exchange && _.isFunction(exchangeLib[fnPath])) {
+            if (exchange && _.isFunction(_.get(exchangeLib,fnPath))) {
               if (_.isArray(methodParams)) {
                 r = exchangeLib[fnPath](...methodParams);
               } else {
                 r = exchangeLib[fnPath]();
               }
-            } else if (_.isFunction(ccxt[fnPath])) {
+            } else if (_.isFunction(_.get(ccxt, fnPath))) {
               if (_.isArray(methodParams)) {
                 r = ccxt[fnPath](...methodParams);
               } else {
                 r = ccxt[fnPath]();
               }
-            } else if (_.isObject(ccxt[fnPath]) || _.isArray(ccxt[fnPath])) {
+            } else if (_.isObject(_.get(ccxt,fnPath)) || _.isArray(_.get(ccxt,fnPath))) {
               r = Promise.resolve(ccxt[fnPath]);
             } else {
               r = Promise.reject({
@@ -133,7 +133,7 @@ module.exports = app => {
       })
       .catch((err) => {
         console.error('all exchanges failed', err);
-        res.status(500).json({message:"internal error"});
+        res.status(400).json({message: `method not found, or asset not available`});
       })
       .then(result => {
         res.json(result);

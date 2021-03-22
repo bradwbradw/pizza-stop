@@ -33,12 +33,76 @@
   <body>
     <header>
       <h1>Pizza Stop 🍕<i>crypto portfolio slice tracker</i></h1>
+
+      <div data-bind="visible: key">
+        <h3>tracked assets</h3>
+        <div data-bind="text: assetsFormatted"></div>
+        <select
+          data-bind="options: availableCurrencies,
+                             value: newAsset"
+        ></select>
+        <button data-bind="click: addNewAsset">add <span data-bind="text: newAsset"></span> asset</button>
+        <h3>quote currencies</h3>
+        <div data-bind="text: quoteCurrenciesFormatted"></div>
+        <select
+          data-bind="options: availableQuoteCurrencies,
+                             value: newQuoteCurrency"
+        ></select>
+        <button data-bind="click: addNewQuoteCurrency">add <span data-bind="text: newQuoteCurrency"></span> quote currencyy</button>
+        <h3>exchanges</h3>
+        <div data-bind="text: exchangesFormatted"></div>
+        <select
+          data-bind="options: availableExchanges,
+                             value: newExchange"
+        ></select>
+        <button data-bind="click: addNewExchange">add <span data-bind="text: newExchange"></span> exchange</button>
+
+      </div>
       <span id="refresh"
         ><button data-bind="click: refresh">
           refresh all slices
         </button></span
       >
-      <div class="total-return">Total Return: <span data-bind="text: grandTotalReturn"></span> <span data-bind="text: selectedQuoteCurrency"></span></div><div>
+      <div class="total-return">Total Return: <span data-bind="text: grandTotalReturn"></span>
+        <h3>exchange slices</h3>
+<!--        <pre data-bind="text: exchangeSlicesJson"></pre>-->
+        <div>
+            <!-- ko foreach: exchangeSlicesArray -->
+              <div class="exchange coin" data-bind="visible: tradesCount > 0">
+                <h2 data-bind="text:ticker"></h2>
+
+                <span class="status" data-bind="text: status"></span>
+                <p class="error" data-bind="text: error"></p>
+                <p ><span data-bind="text: tradesCount"></span> trades found</p>
+                <p> net average price: <span data-bind="text: boughtPrice"></span> <span data-bind="text: quoteCurrency"></span></p>
+                <p> net amount: <span data-bind="text: amount"></span></p>
+                <p> price now: <span data-bind="text: nowPrice"></span></p>
+                <p>
+                  value now: <br />
+                  <span
+                    data-bind="text: totalReturnValueFormatted"
+                  ></span
+                  >&nbsp;(<span data-bind="text: returnDiffFormatted"></span>)
+                </p>
+                <h3 data-bind="text: percentReturn"></h3>
+                <div class="return-line">
+                  <div class="minus-line" data-bind="css:{length: minusLineLength}"></div>
+                  <div class="plus-line" data-bind="css:{length: plusLineLength}"></div>
+                </div>
+                <h3>
+                  <span data-bind="text: quote2ValueFormatted"></span>
+                  <span data-bind="text: $root.selectedQuoteCurrency"></span>
+                </h3>
+                <button data-bind="click: $root.removeSlice">
+                  delete
+                </button>
+              </div>
+          <!--   /ko -->
+
+        </div>
+
+
+      <span data-bind="text: selectedQuoteCurrency"></span></div><div>
       sort by :
         <select
           data-bind="options: $root.availableSortings,
@@ -131,7 +195,7 @@
     <p>ETH-USD: <input data-bind="value: livePrices()['ETH/USDT']" /></p>
     <h3>your reference currency:</h3>
     <select
-      data-bind="options: availableQuote2Currencies,
+      data-bind="options: availableQuoteCurrencies,
                          value: selectedQuoteCurrency"
     ></select>
 
