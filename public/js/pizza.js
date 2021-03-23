@@ -424,7 +424,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
     availableSortings: ko.observable(_.keys(Pizza.sortings)),
       slices: ko.observableArray(load("slices", sliceConstructor)),
       exchangeSlices:ko.observable(loadObj('exchangeSlices', sliceConstructor)),
-      exchangeSlicesArray: ko.observable(load('exchangeSlicesArray', sliceConstructor)),
+      exchangeSlicesArray: ko.observableArray(load('exchangeSlicesArray', sliceConstructor)),
       applyTheSorting:(arr)=>{
         var sort = Pizza.selectedSorting();
         var sortFn = _.get(Pizza.sortings, sort);
@@ -449,7 +449,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       var slices = Pizza.slices();
       return Pizza.applyTheSorting(slices);
     }),
-    updateSorted:()=>{
+    updateSorting:()=>{
       Pizza.exchangeSlicesArray(Pizza.applyTheSorting(_.values(Pizza.exchangeSlicesArray())));
     }
   });
@@ -523,7 +523,30 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       }
     });
   };
+  Pizza.justImport = () => {
 
+    _.each(Pizza.assets(), asset => {
+      _.each(Pizza.quoteCurrencies(), qc => {
+        var pair = `${asset}/${qc}`;
+        var slice = Pizza.exchangeSlices()[pair];
+        if (slice){
+        } else {
+          if (Pizza.exchangeSlices()[pair]){
+
+          } else {
+
+            Pizza.exchangeSlices(_.extend(Pizza.exchangeSlices(),_.set({},pair,
+              new Slice(
+                {
+                  currency:asset,
+                  quoteCurrency: qc
+                })
+            )));
+          }
+        }
+      });
+    });
+  }
   // refresh functions
   _.extend(Pizza, {
     importAndRefresh: () => {
@@ -532,23 +555,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       if (_.isString(k)){
 
         // find and create any new exchange slices
-
-        _.each(Pizza.assets(), asset => {
-          _.each(Pizza.quoteCurrencies(), qc => {
-            var pair = `${asset}/${qc}`;
-            var slice = Pizza.exchangeSlices()[pair];
-            if (slice){
-            } else {
-              Pizza.exchangeSlices(_.extend(Pizza.exchangeSlices(),_.set({},pair,
-                new Slice(
-                  {
-                    currency:asset,
-                    quoteCurrency: qc
-                  })
-              )));
-            }
-          });
-        });
+        Pizza.justImport();
 
       }
       _.each(Pizza.slices(), slice => {
@@ -592,15 +599,15 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
             return slice.updateTicker();
           })
           .then((s2)=>{
-            Pizza.exchangeSlicesArray().remove(slice);
-            Pizza.exchangeSlicesArray().push(s2);
+            Pizza.exchangeSlicesArray.remove(slice);
+            Pizza.exchangeSlicesArray.push(s2);
           });
         } else {
           console.log(`0 trades for ${slice.ticker()}. import again to find new trades`);
           return slice.updateTicker()
           .then((s2)=>{
-            Pizza.exchangeSlicesArray().remove(slice);
-            Pizza.exchangeSlicesArray().push(s2);
+            Pizza.exchangeSlicesArray.remove(slice);
+            Pizza.exchangeSlicesArray.push(s2);
           });
         }
       })
@@ -622,8 +629,8 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       _.each(Pizza.exchangeSlicesArray(), slice => {
         p = p.then(()=>{
             return slice.updateTicker().then(s2 => {
-              Pizza.exchangeSlicesArray().remove(slice);
-              Pizza.exchangeSlicesArray().push(s2);
+              Pizza.exchangeSlicesArray.remove(slice);
+              Pizza.exchangeSlicesArray.push(s2);
             });
         });
       });
@@ -691,8 +698,5 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
 
   function fetchTicker(pair){
     return httpRequest('ccxt/exchanges/fetchTicker', {methodParams:[pair]})
-    .catch((err) => {
-      throw new Error(`${pair} fetch ticker failed`);
-    })
   }
 }
