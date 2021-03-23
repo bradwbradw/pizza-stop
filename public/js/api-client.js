@@ -45,6 +45,7 @@ var api = {
         }
       },
       trades:(exchange, pair) => {
+        debugger;
         return httpRequest(`ccxt/${exchange}/fetchMyTrades`,{
           key,
           methodParams:[pair]

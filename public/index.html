@@ -59,10 +59,14 @@
 
       </div>
       <span id="refresh"
-        ><button data-bind="click: refresh">
-          refresh all slices
-        </button></span
-      >
+        ><button data-bind="click: importAndRefresh">
+          import ^ and refresh
+        </button>
+        <button data-bind="click: updateSliceValues">
+          update values
+        </button>
+        <button data-bind="click: quickRefreshSlices">quick refresh</button>
+        </span>
       <div class="total-return">Total Return: <span data-bind="text: grandTotalReturn"></span>
         <h3>exchange slices</h3>
 <!--        <pre data-bind="text: exchangeSlicesJson"></pre>-->
@@ -84,18 +88,23 @@
                   ></span
                   >&nbsp;(<span data-bind="text: returnDiffFormatted"></span>)
                 </p>
+                <p>
+                  value at last update: <br/>
+                  [<span data-bind="text: lastValue"></span>]
+                </p>
                 <h3 data-bind="text: percentReturn"></h3>
                 <div class="return-line">
                   <div class="minus-line" data-bind="css:{length: minusLineLength}"></div>
                   <div class="plus-line" data-bind="css:{length: plusLineLength}"></div>
                 </div>
                 <h3>
-                  <span data-bind="text: quote2ValueFormatted"></span>
+                  <span data-bind="text: valueFormatted"></span>
                   <span data-bind="text: $root.selectedQuoteCurrency"></span>
                 </h3>
                 <button data-bind="click: $root.removeSlice">
                   delete
                 </button>
+                 <button data-bind="click: loadTradesThenUpdateTicker">update</button>
               </div>
           <!--   /ko -->
 
@@ -134,6 +143,10 @@
         ></span
         >&nbsp;(<span data-bind="text: returnDiffFormatted"></span>)
       </p>
+      <p>
+        value at last update: <br/>
+        [<span data-bind="text: lastValue"></span>]
+      </p>
       <h3 data-bind="text: percentReturn"></h3>
       <div class="return-line">
         <div class="minus-line" data-bind="css:{length: minusLineLength}"></div>
@@ -146,8 +159,8 @@
       <button data-bind="click: $root.removeSlice">
         delete
       </button>
-      <button data-bind="click: refresh">
-        refresh
+      <button data-bind="click: updateTicker">
+        update value
       </button>
     </div>
     <!-- /ko -->
@@ -193,6 +206,8 @@
     </div>
     <p>BTC-USD: <input data-bind="value: livePrices()['BTC/USDT']" /></p>
     <p>ETH-USD: <input data-bind="value: livePrices()['ETH/USDT']" /></p>
+    <p>BNB-USD: <input data-bind="value: livePrices()['BNB/USDT']" /></p>
+    <p>CAD-USD: <input data-bind="value: livePrices()['CAD/USDT']" /></p>
     <h3>your reference currency:</h3>
     <select
       data-bind="options: availableQuoteCurrencies,

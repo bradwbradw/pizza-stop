@@ -33,27 +33,6 @@ function Pizza() {
   var DATE_FORMAT = "dddd, MMMM Do YYYY, h:mm:ss a";
   var RATE = 5000;
   var digits = 8;
-  var sortings = {
-    alpha:(Slice) => {
-        return Slice.ticker();
-      },
-    percent:(Slice) => {
-        var p = Slice.returnProportion();
-        if (_.isNumber(p)){
-          return -1*p;
-        } else {
-          return 99999;
-        }
-      },
-    "net gain":(Slice) => {
-        var p = Slice.quote2Value();
-        if (_.isNumber(p)){
-          return -1*p;
-        } else {
-          return 99999;
-        }
-      }
-  }
 
   var Pizza = this;
     _.extend(Pizza, {
@@ -73,14 +52,13 @@ function Pizza() {
     newSliceFetchingPrice: ko.observable(false),
     autoRefresh: ko.observable(false),
     livePrices: ko.observable({}),
-    availableSortings: ko.observable(_.keys(sortings)),
     selectedSorting: ko.observable("net gain"),
     key: ko.observable(load('key')),
     assets: ko.observableArray(load('assets')),
     quoteCurrencies: ko.observableArray(load('quoteCurrencies')),
     newAsset: ko.observable(),
     newQuoteCurrency: ko.observable(),
-    trades: ko.observable(loadObj('trades'))
+    trades: ko.observable(loadObj('trades')),
   });
   _.extend(Pizza,{
     assetsFormatted: ko.computed(()=>{
@@ -105,7 +83,7 @@ function Pizza() {
   });
   var saving = 'livePrices key exchangeSlices trades'.split(' ');
 
-  var saveArrays = "slices assets quoteCurrencies exchanges".split(' ');
+  var saveArrays = "slices assets quoteCurrencies exchanges exchangeSlicesArray".split(' ');
 
   Pizza.getLivePrices = ko.computed(function() { return Pizza.livePrices();});
   Pizza.newSliceGetPrice = () =>{
@@ -274,25 +252,31 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       })
     })
 
+    Slice.lastValue = ko.observable();
 
-    Slice.quote2Value = ko.computed(() => {
+    Slice.value = ko.computed(() => {
         if (Slice.quoteCurrency() == Pizza.selectedQuoteCurrency()){
           return Slice.returnDiff();
         } else {
           var pair = `${Slice.quoteCurrency()}/${Pizza.selectedQuoteCurrency()}`;
-          var quote2Price = Pizza.getLivePrices()[pair];
+          var quote2UnitPrice = Pizza.getLivePrices()[pair]; // eg, price in USDT
 
-          if (isNum(quote2Price) && isNum(Slice.returnDiff())){
-            return quote2Price * Slice.returnDiff();
+          if (isNum(quote2UnitPrice) && isNum(Slice.returnDiff())){
+            var value = quote2UnitPrice * Slice.returnDiff();
+            Slice.lastValue(value);
+            return value;
           } else {
+              if (isNum(Slice.lastValue())){
+                return Slice.lastValue();
+              }
               //Slice.status(`sorry, ${Slice.quoteCurrency()} value is not yet available`);
               return null;
           }
         }
     });
 
-    Slice.quote2ValueFormatted = ko.computed(()=>{
-      var v = Slice.quote2Value();
+    Slice.valueFormatted = ko.computed(()=>{
+      var v = Slice.value();
       if (isNum(v)){
         return _.round(v, 2);
       } else {
@@ -309,7 +293,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         return Slice;
       })
       .catch(err => {
-        console.log(err);
+//        console.log(err);
         Slice.error(err);
         Slice.status("");
       });
@@ -319,7 +303,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         return new Promise((resolve, reject) => {
 
           ko.tasks.schedule(()=>{
-            if (_.isString(Pizza.key()) && _.isString(_.first(Pizza.exchanges()))){
+            if (_.isString(Pizza.key())) {
               Promise.all(_.map(Pizza.exchanges(), exchange => {
                 return api.user(Pizza.key()).trades(exchange, Slice.ticker())
               }))
@@ -335,7 +319,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
           });
         });
       },
-      updateValue:()=>{
+      updateTicker:() => {
         console.log(`got ${_.size(trades)} ${Slice.ticker()} trades`);
         if (Slice.tradesCount() > 0){
           var trades = Slice.trades();
@@ -365,6 +349,11 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         } else {
           return Slice.updateNowPrice();
         }
+      },
+      loadTradesThenUpdateTicker:()=>{
+        return Slice.loadTrades().then(() => {
+          return Slice.updateTicker();
+        });
       }
     })
 
@@ -374,12 +363,13 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       return v;
     }).subscribe(() => {
       saveToLocalStorage("slices", Pizza)();
+      saveToLocalStorage("exchangeSlicesArray", Pizza)();
     })
     return Slice;
   };
 
   function sliceConstructor (item){
-    var numericKeys = "amount boughtPrice initialValue nowPrice returnDiff totalReturnValue".split(' ');
+    var numericKeys = "amount boughtPrice initialValue nowPrice returnDiff lastValue totalReturnValue tradesCount".split(' ');
     _.each(numericKeys, k => {
       if (_.isString(_.get(item, k))){
         var n;
@@ -397,16 +387,59 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
   }
 
   _.extend(Pizza, {
-    slices: ko.observableArray(
-      load("slices", sliceConstructor)
-    ),
-    exchangeSlices:ko.observable(loadObj('exchangeSlices', sliceConstructor))
-  });
+    sortings:{
+      alpha:(Slice) => {
+          return Slice.ticker();
+        },
+      percent:(Slice) => {
+          if (_.isFunction(Slice.value)){
+            var p = Slice.returnProportion();
+            if (_.isNumber(p)){
+              return -1*p;
+            } else {
+              return 99999;
+            }
+          }
+          else {
+            return 99999;
+          }
+        },
+      "net gain":(Slice) => {
+          if (_.isFunction(Slice.value)){
+
+            var p = Slice.value();
+            if (_.isNumber(p)){
+              return -1*p;
+            } else {
+              return 99999;
+            }
+          } else {
+            return 99999;
+          }
+        }
+      }
+    });
+
+    _.extend(Pizza, {
+    availableSortings: ko.observable(_.keys(Pizza.sortings)),
+      slices: ko.observableArray(load("slices", sliceConstructor)),
+      exchangeSlices:ko.observable(loadObj('exchangeSlices', sliceConstructor)),
+      exchangeSlicesArray: ko.observable(load('exchangeSlicesArray', sliceConstructor)),
+      applyTheSorting:(arr)=>{
+        var sort = Pizza.selectedSorting();
+        var sortFn = _.get(Pizza.sortings, sort);
+        if (_.isFunction(sortFn)){
+          return _.sortBy(arr, sortFn);
+        } else {
+          return arr;
+        }
+      }
+    });
   _.extend(Pizza,{
     exchangeSlicesJson:ko.computed(()=>{
       var result = '...';
       try {
-        result = JSON.stringify(ko.toJS(Pizza.exchangeSlices()), null, 2);
+        result = ko.toJSON(Pizza.exchangeSlices());
       } catch (err){
 
       }
@@ -414,19 +447,11 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
     }),
     slicesSorted: ko.computed(function() {
       var slices = Pizza.slices();
-      var sort = Pizza.selectedSorting();
-      var sortFn = _.get(sortings, sort);
-      if (_.isFunction(sortFn)){
-
-        return _.sortBy(slices, sortFn);
-
-      } else {
-        console.error($`not a function: sortings.{sort}`);
-      }
+      return Pizza.applyTheSorting(slices);
     }),
-    exchangeSlicesArray: ko.computed(()=>{
-      return _.values(ko.toJS(Pizza.exchangeSlices()));
-    })
+    updateSorted:()=>{
+      Pizza.exchangeSlicesArray(Pizza.applyTheSorting(_.values(Pizza.exchangeSlicesArray())));
+    }
   });
 
   _.each(saving, s =>{
@@ -499,9 +524,9 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
     });
   };
 
-  // refactor above into extend syntax
+  // refresh functions
   _.extend(Pizza, {
-    refresh: () => {
+    importAndRefresh: () => {
 
       var k = Pizza.key();
       if (_.isString(k)){
@@ -528,28 +553,90 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       }
       _.each(Pizza.slices(), slice => {
         console.log('refreshing from slices()', slice);
-        slice.updateValue();
+        slice.updateTicker();
     //    pairs.push(slice.ticker());
       });
+
+      Pizza.exchangeSlicesArray([]);
 
       _.each(Pizza.exchangeSlices(), slice => {
         if (slice.tradesCount() == 0){
           slice.loadTrades()
           .then(() => {
-            slice.updateValue();
+            return slice.updateTicker();
+          })
+          .then((s2)=>{
+            console.log("push", s2);
+            Pizza.exchangeSlicesArray().push(s2);
           });
         } else {
-          slice.updateValue();
+          console.log(`trades is 0 for ${slice.ticker()}. will not fetch trades`);
+          slice.updateTicker();
         }
       })
-
-
-
     },
+    //parallel deep update
+    updateSliceValues: () => {
+      _.each(Pizza.slices(), slice => {
+        if(slice.tradesCount() > 0){
+          console.error("a regular slice has trades");
+          debugger;
+        }
+        slice.updateTicker();
+      });
+
+      _.each(Pizza.exchangeSlices(), slice => {
+        if (slice.tradesCount() > 0) {
+          slice.loadTrades()
+          .then(() => {
+            return slice.updateTicker();
+          })
+          .then((s2)=>{
+            exchangeSlicesArray().remove(slice);
+            exchangeSlicesArray().push(s2);
+          });
+        } else {
+          console.log(`0 trades for ${slice.ticker()}. import again to find new trades`);
+          return slice.updateTicker()
+          .then((s2)=>{
+            exchangeSlicesArray().remove(slice);
+            exchangeSlicesArray().push(s2);
+          });
+        }
+      })
+    },
+    //serial quick update
+    quickRefreshSlices:()=>{
+      var p = Promise.resolve();
+      var results = [];
+      _.each(Pizza.slices(), slice => {
+        if(slice.tradesCount() > 0){
+          console.error("a regular slice has trades");
+          debugger;
+        }
+        p = p.then((()=>{
+          return slice.updateTicker();
+        }));
+      });
+
+      _.each(Pizza.exchangeSlicesArray(), slice => {
+        p = p.then(()=>{
+            return slice.updateTicker().then(s2 => {
+              Pizza.exchangeSlicesArray().remove(slice);
+              Pizza.exchangeSlicesArray().push(s2);
+            });
+        });
+      });
+
+      return p;
+    },
+
     refreshLivePrices: () => {
       var quoteCurrenciesFromSlices = [];
-      _.each(_.flatten([Pizza.slices(),Pizza.exchangeSlicesArray()]), s => {
-        quoteCurrenciesFromSlices = _.union(quoteCurrenciesFromSlices, [sliceConstructor(s).quoteCurrency()]);
+      var ar = _.flatten([Pizza.slices(),Pizza.exchangeSlicesArray()]);
+      _.each(ar, s => {
+//        quoteCurrenciesFromSlices = _.union(quoteCurrenciesFromSlices, [sliceConstructor(s).quoteCurrency()]);
+          quoteCurrenciesFromSlices = _.union(quoteCurrenciesFromSlices, [s.quoteCurrency()]);
       });
       console.log("qcfs",quoteCurrenciesFromSlices);
       _.each(quoteCurrenciesFromSlices, symbol => {
@@ -577,10 +664,14 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         });
       },
     grandTotalReturn: ko.computed(() => {
-      var sum = _.sumBy(Pizza.slices(), item => {
-
-        return item.quote2Value();
+      var sum = _.sumBy(_.flatten([Pizza.slices(), Pizza.exchangeSlicesArray()]), item => {
+        if (_.isFunction(item.value)){
+          return item.value();
+        } else {
+          return 0;
+        }
       });
+
 
       return _.round(sum, 2);
     })
