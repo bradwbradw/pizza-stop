@@ -72,7 +72,7 @@
 <!--        <pre data-bind="text: exchangeSlicesJson"></pre>-->
         <div>
             <!-- ko foreach: exchangeSlicesArray -->
-              <div class="exchange coin" data-bind="visible: tradesCount > 0">
+              <div class="exchange coin" data-bind="visible: tradesCount() > 0">
                 <h2 data-bind="text:ticker"></h2>
 
                 <span class="status" data-bind="text: status"></span>

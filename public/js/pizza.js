@@ -592,15 +592,15 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
             return slice.updateTicker();
           })
           .then((s2)=>{
-            exchangeSlicesArray().remove(slice);
-            exchangeSlicesArray().push(s2);
+            Pizza.exchangeSlicesArray().remove(slice);
+            Pizza.exchangeSlicesArray().push(s2);
           });
         } else {
           console.log(`0 trades for ${slice.ticker()}. import again to find new trades`);
           return slice.updateTicker()
           .then((s2)=>{
-            exchangeSlicesArray().remove(slice);
-            exchangeSlicesArray().push(s2);
+            Pizza.exchangeSlicesArray().remove(slice);
+            Pizza.exchangeSlicesArray().push(s2);
           });
         }
       })
