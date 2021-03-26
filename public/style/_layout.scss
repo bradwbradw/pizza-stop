@@ -1,0 +1,80 @@
+
+.status {
+  text-align:right;
+  background:black;
+  color:white;
+}
+.error {
+  text-align:right;
+  color: red;
+}
+#raw{
+  background-color:lightgrey;
+}
+
+.time{
+  font-size:smaller;
+  margin-left:3em;
+}
+
+p {
+  margin:0;
+}
+
+.coin{
+  background: tomato;
+  border: 2px solid firebrick;
+  width:16em;
+  padding:0.5em;
+  margin:0.3em;
+  display:inline-block;
+  border-radius: 5px 5px 5px 5px;
+}
+.exchange {
+  background: darkolivegreen;
+}
+
+.coin h3 {
+  margin:0;
+}
+.coin.new{
+  background:lightgrey;
+}
+
+input, select{
+  width:45%;
+  display:inline;
+  height:1.75em;
+}
+
+.return-line{
+  height:4px;
+  width:100%;
+}
+
+.return-line minus-line {
+  height:100%;
+  background-color:green;
+}
+
+.return-line plus_line {
+  height:100%;
+  backgroud-color:red;
+}
+
+
+.nestybox{
+  display:flex;
+  background-color:coral;
+  font-size:0.8em;
+
+  input, select{
+    font-size:0.8em;
+  }
+
+  div {
+    background-color:lightpink;
+    width:45vw;
+    margin: 0.25em;
+  }
+}

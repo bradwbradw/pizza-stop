@@ -1,31 +1,24 @@
 /* styles */
 /* called by your view template */
-
 * {
-  box-sizing: border-box;
-}
+  box-sizing: border-box; }
 
 body {
   font-family: helvetica, arial, sans-serif;
-  margin: 2em;
-}
+  margin: 2em; }
 
 h1 {
-  font-weight:700;
-  color: darkred;
-}
+  font-weight: 700;
+  color: darkred; }
 
-.total-return{
-  font-size:1.3em;
-}
+.total-return {
+  font-size: 1.3em; }
 
 .bold {
-  font-weight: bold;
-}
+  font-weight: bold; }
 
 p {
-  max-width: 600px;
-}
+  max-width: 600px; }
 
 form {
   margin-bottom: 25px;
@@ -34,8 +27,7 @@ form {
   display: inline-block;
   width: 100%;
   max-width: 340px;
-  border-radius: 3px;
-}
+  border-radius: 3px; }
 
 input {
   display: block;
@@ -44,8 +36,7 @@ input {
   width: 100%;
   border: 1px solid lightgrey;
   border-radius: 3px;
-  font-size: 16px;
-}
+  font-size: 16px; }
 
 button {
   font-size: 16px;
@@ -53,94 +44,86 @@ button {
   background-color: lightgrey;
   border: 1px solid grey;
   box-shadow: 2px 2px teal;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
 button:hover {
-  background-color: yellow;
-}
+  background-color: yellow; }
 
 button:active {
-  box-shadow: none;
-}
+  box-shadow: none; }
 
 li {
-  margin-bottom: 5px;
-}
+  margin-bottom: 5px; }
 
 footer {
   margin-top: 50px;
   padding-top: 25px;
-  border-top: 1px solid lightgrey;
-}
+  border-top: 1px solid lightgrey; }
 
 .status {
-  text-align:right;
-  background:black;
-  color:white;
-}
+  text-align: right;
+  background: black;
+  color: white; }
+
 .error {
-  text-align:right;
-  color: red;
-}
-#raw{
-  background-color:lightgrey;
-}
+  text-align: right;
+  color: red; }
 
-.time{
-  font-size:smaller;
-  margin-left:3em;
-}
+#raw {
+  background-color: lightgrey; }
 
-#chart{
-
-      width: 100%;
-      height: 400px;
-      margin: 0;
-      padding: 0;
-}
+.time {
+  font-size: smaller;
+  margin-left: 3em; }
 
 p {
-  margin:0;
-}
+  margin: 0; }
 
-.coin{
+.coin {
   background: tomato;
   border: 2px solid firebrick;
-  width:16em;
-  padding:0.5em;
-  margin:0.3em;
-  display:inline-block;
-  border-radius: 5px 5px 5px 5px;
-}
+  width: 16em;
+  padding: 0.5em;
+  margin: 0.3em;
+  display: inline-block;
+  border-radius: 5px 5px 5px 5px; }
+
 .exchange {
-  background: darkolivegreen;
-}
+  background: darkolivegreen; }
 
 .coin h3 {
-  margin:0;
-}
-.coin.new{
-  background:lightgrey;
-}
+  margin: 0; }
 
-input, select{
-  width:45%;
-  display:inline;
-  height:1.75em;
-}
+.coin.new {
+  background: lightgrey; }
 
-.return-line{
-  height:4px;
-  width:100%;
-}
+input, select {
+  width: 45%;
+  display: inline;
+  height: 1.75em; }
+
+.return-line {
+  height: 4px;
+  width: 100%; }
 
 .return-line minus-line {
-  height:100%;
-  background-color:green;
-}
+  height: 100%;
+  background-color: green; }
 
 .return-line plus_line {
-  height:100%;
-  backgroud-color:red;
-}
+  height: 100%;
+  backgroud-color: red; }
+
+.nestybox {
+  display: flex;
+  background-color: coral;
+  font-size: 0.8em; }
+  .nestybox input, .nestybox select {
+    font-size: 0.8em; }
+  .nestybox div {
+    background-color: lightpink;
+    width: 45vw;
+    margin: 0.25em; }
+
+body {
+  background-color: rgba(130, 135, 140, 0.9); }
