@@ -31,7 +31,7 @@ var httpRequest = function(url, params, opts) {
     });
 }
 
-var api = {
+var Api = {
   user: (key) => {
     return {
       fetch:(pairs) => {
@@ -53,6 +53,9 @@ var api = {
           return [];
         })
         .then(cleanTrades)
+      },
+      btc:(p) => {
+        return httpRequest(`btc`, p)
       }
     }
   }

@@ -81,7 +81,7 @@ function Pizza() {
       Pizza.exchanges.push(Pizza.newExchange());
     }
   });
-  var saving = 'livePrices key exchangeSlices trades'.split(' ');
+  var saving = 'livePrices key exchangeSlices trades user'.split(' ');
 
   var saveArrays = "slices assets quoteCurrencies exchanges exchangeSlicesArray".split(' ');
 
@@ -305,7 +305,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
           ko.tasks.schedule(()=>{
             if (_.isString(Pizza.key())) {
               Promise.all(_.map(Pizza.exchanges(), exchange => {
-                return api.user(Pizza.key()).trades(exchange, Slice.ticker())
+                return Api.user(Pizza.key()).trades(exchange, Slice.ticker())
               }))
               .then((tArray) => {
                 var trades = _.flatten(tArray);
@@ -420,7 +420,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
       }
     });
 
-    _.extend(Pizza, {
+  _.extend(Pizza, {
     availableSortings: ko.observable(_.keys(Pizza.sortings)),
       slices: ko.observableArray(load("slices", sliceConstructor)),
       exchangeSlices:ko.observable(loadObj('exchangeSlices', sliceConstructor)),
@@ -451,7 +451,8 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
     }),
     updateSorting:()=>{
       Pizza.exchangeSlicesArray(Pizza.applyTheSorting(_.values(Pizza.exchangeSlicesArray())));
-    }
+    },
+    user: ko.observable(load('user'))
   });
 
   _.each(saving, s =>{
@@ -652,6 +653,10 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         }
       });
       console.log(quoteCurrenciesFromSlices);
+
+      Api.user(Pizza.key()).btc().then(btc => {
+        console.log(`btc`, btc);
+      });
     },
 
     scheduleTickerFetch: function (currency, quoteCurrency){

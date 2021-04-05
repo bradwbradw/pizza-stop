@@ -168,7 +168,7 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
             if (_.isString(getPizza().key()) && _.isString(_.first(getPizza().exchanges()))){
               var trades = [];
               Promise.all(_.map(getPizza().exchanges(), exchange => {
-                return api.user(getPizza().key()).trades(exchange, Slice.ticker())
+                return Api.user(getPizza().key()).trades(exchange, Slice.ticker())
                 .then(t => {
                   trades = _.flatten([trades, t]);
                 });
