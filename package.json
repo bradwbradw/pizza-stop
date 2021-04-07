@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@mareksokol/ccxt": "^1.33.57",
+    "bitcoin-core": "^3.0.0",
     "body-parser": "^1.19.0",
     "browser-sync": "^2.26.14",
     "dotenv": "^8.2.0",
@@ -38,5 +39,8 @@
     "node",
     "glitch",
     "express"
-  ]
+  ],
+  "devDependencies": {
+    "testem": "^3.4.0"
+  }
 }

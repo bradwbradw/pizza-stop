@@ -12,12 +12,15 @@ const ccxt = require ('@mareksokol/ccxt');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const btcClient = require('bitcoin-core');
+// https://www.smartbit.com.au/api
 const app = express();
 
 require('dotenv').config();
 
 const db = require('./db.js');
 const user = require('./user.js');
+//const coin = require('./coin-data.js');
 
 
 var port = process.env.PORT;
@@ -46,6 +49,10 @@ app.post("/portfolio", (request, response ) => {
   var portfolio = JSON.stringify(request.body, null, 2);
 
   response.json({portfolio});
+});
+
+app.post("/coin", (req, res) =>{
+
 });
 
 

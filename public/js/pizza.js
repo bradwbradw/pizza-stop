@@ -1,5 +1,6 @@
 
 console.log("welcome to pizza stop :o");
+
 if (!ko || !_ || !moment || !CURRENCIES || !QUOTE_2_CURRENCIES) {
   console.error("dependencies failed:", ko, _, moment, CURRENCIES, QUOTE_2_CURRENCIES);
 
@@ -11,6 +12,7 @@ if (!ko || !_ || !moment || !CURRENCIES || !QUOTE_2_CURRENCIES) {
 debugger;
 }
 
+
 if (!_.isFunction(httpRequest) || !_.isFunction(saveToLocalStorage) || !_.isFunction(isNum) || !_.isFunction(load)){
   var httpRequest = ()=>{};
   var saveToLocalStorage = ()=>{};
@@ -21,10 +23,7 @@ if (!_.isFunction(httpRequest) || !_.isFunction(saveToLocalStorage) || !_.isFunc
   debugger;
 } else {
 
-//ko.options.deferUpdates = true;
-//$(document).ready(function() {
   ko.applyBindings(new Pizza());
-//});
 
 }
 
@@ -653,10 +652,10 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
         }
       });
       console.log(quoteCurrenciesFromSlices);
-
+/*
       Api.user(Pizza.key()).btc().then(btc => {
         console.log(`btc`, btc);
-      });
+      });*/
     },
 
     scheduleTickerFetch: function (currency, quoteCurrency){
@@ -699,8 +698,8 @@ function Slice({currency, quoteCurrency, amount, transactionDate, boughtPrice, n
   }, RATE);*/
 
 //  Pizza.refresh();
-  Pizza.refreshLivePrices();
 
+    Pizza.refreshLivePrices();
   function fetchTicker(pair){
     return httpRequest('ccxt/exchanges/fetchTicker', {methodParams:[pair]})
   }
