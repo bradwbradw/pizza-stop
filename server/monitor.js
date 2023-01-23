@@ -82,7 +82,7 @@ var checks = {
     }
   },
   'update asset data': {
-    enabled: false,
+    enabled: true,
     interval: "29 minutes",
     fetch: () => {
       return googleSheets.sheetTickers()
