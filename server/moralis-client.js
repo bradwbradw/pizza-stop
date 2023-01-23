@@ -6,7 +6,6 @@ var chains = require('../module/chains.js');
 var cache = require('../module/cache.js');
 
 var queue = require('../module/queue.js');
-var Moralis = require('moralis/node');
 
 var MoralisRestApi;
 
