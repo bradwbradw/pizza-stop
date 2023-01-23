@@ -74,6 +74,7 @@ function printPrices(pricesMap) {
     .then(p => {
       var lowerCased = _.map(p, pair => [_.toLower(pair[0], pair[1])]);
       var existingMap = _.fromPairs(lowerCased);
+
       _.each(_.keys(existingMap), t => {
         if (_.isNumber(_.get(pricesMap, _.toLower(t)))) {
           _.set(existingMap, t, pricesMap[_.toLower(t)]);
@@ -86,7 +87,15 @@ function printPrices(pricesMap) {
 function sheetTickers() {
   return read(pricesSheetID, 'portfolio')
     .then(t => {
-      return _.keys((_.fromPairs(t)));
+      var clean = _.filter(t, row => {
+        return (
+          _.isArray(row) &&
+          _.size(row) > 1 &&
+          _.isString(row[0]) &&
+          !_.isEmpty(row[0])
+        );
+      });
+      return _.keys((_.fromPairs(clean)));
     })
 }
 
