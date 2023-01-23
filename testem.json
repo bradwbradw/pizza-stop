@@ -1,0 +1,9 @@
+{
+  "test_page": "./public/test.html",
+  "proxies": {
+    "/": {
+      "target": "http://localhost:4567",
+      "onlyContentTypes": ["json"]
+    }
+  }
+}

@@ -1,27 +1,84 @@
 {
-  "name": "glitch-hello-node",
-  "version": "0.1.0",
-  "description": "A simple Node app built on fastify, instantly up and running. Built to be remixed on Glitch.com.",
-  "main": "server.js",
+  "//1": "describes your app and its dependencies",
+  "//2": "https://docs.npmjs.com/files/package.json",
+  "//3": "updating this file will download and update your packages",
+  "name": "pizza-stop",
+  "version": "0.0.1",
+  "description": "Visualize your crypto portfolio using a simple pizza / slice model for tracking asset values.",
+  "main": "server/start.js",
+  "watch": {
+    "build-css": {
+      "patterns": "scss",
+      "extensions": "scss"
+    },
+    "start": [
+      "server",
+      "component",
+      "module"
+    ]
+  },
   "scripts": {
-    "start": "node server.js"
+    "test": "mocha --watch",
+    "test-ui": "open-cli http://localhost:3002/test.html",
+    "bundle-ethereum": "browserify ethereumjs-modules.js -s EthereumJS > public/js/build/ethereum.js",
+    "build-css": "node-sass --include-path scss scss/style.scss  public/style.css",
+    "start": "node server/start.js",
+    "dev": "npm-watch",
+    "ui": "npx browser-sync http://localhost:5678 'public' -w"
   },
   "dependencies": {
-    "fastify": "^4.11.0",
-    "handlebars": "^4.7.7",
-    "@fastify/formbody": "^7.4.0",
-    "@fastify/static": "^6.6.0",
-    "@fastify/view": "^7.3.0"
+    "@ethereumjs/common": "^2.6.1",
+    "@ethereumjs/tx": "^3.5.0",
+    "@openzeppelin/contract-loader": "^0.6.3",
+    "@truffle/hdwallet-provider": "^2.0.8",
+    "agenda": "^4.3.0",
+    "better-sqlite3": "^7.4.4",
+    "body-parser": "^1.19.0",
+    "browserify": "^17.0.0",
+    "ccxt": "^1.62.63",
+    "discord.js": "^13.7.0",
+    "dotenv": "^8.2.0",
+    "ethereumjs-util": "^7.1.4",
+    "express": "^4.17.1",
+    "folder-hash": "^4.0.2",
+    "gas-price-oracle": "^0.4.7",
+    "googleapis": "^110.0.0",
+    "install": "^0.13.0",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
+    "moralis": "0.0.132",
+    "node-fetch": "^2.6.1",
+    "node-localstorage": "^2.2.1",
+    "npm": "^8.10.0",
+    "sanitize-filename": "^1.6.3",
+    "sass": "^1.51.0",
+    "sqlite3": "^5.0.2",
+    "superagent": "^6.1.0",
+    "swagger-client": "^3.16.1",
+    "web3": "^1.6.0",
+    "when": "^3.7.8"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/glitch-hello-node"
+    "url": "https://glitch.com/edit/#!/hello-sqlite"
   },
   "license": "MIT",
   "keywords": [
     "node",
-    "glitch"
-  ]
+    "glitch",
+    "express"
+  ],
+  "devDependencies": {
+    "browser-sync": "^2.27.7",
+    "mocha": "^9.2.0",
+    "node-sass": "^7.0.1",
+    "npm-watch": "^0.11.0",
+    "open-cli": "^7.0.1",
+    "proxyquire": "^2.1.3",
+    "requirejs": "^2.3.6",
+    "sinon": "^12.0.1",
+    "testem": "^3.4.0"
+  }
 }

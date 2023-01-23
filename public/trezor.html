@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>trez</title>
+</head>
+
+<body>
+  <h3>trezor</h3>
+
+  <pre data-bind="html: content"></pre>
+
+  <input data-bind="value:chainID" placeholder="chain id"></input>
+  <input data-bind="value:address" placeholder="your address"></input>
+  <input data-bind="value:contractAddress" placeholder="contractAddress"></input>
+  <input data-bind="value:methodName" placeholder="contract method name"></input>
+  <input data-bind="value:parameters" placeholder="contract method parameters"></input>
+
+  <button data-bind="click: signAndSendTransaction">signAndSendTransaction</button>
+
+  <button data-bind="click: saveFavorite">💾</button>
+
+  <h3>favorites</h3>
+  <!-- ko foreach: favorites -->
+  <button data-bind="click: ()=>signAndSendTransaction($data), text:$data.contractAddress+'.'+$data.methodName+'('+$data.parameters+')'">
+    <!--ko text: methodName-->
+    <!--/ko-->
+  </button>
+  <!-- /ko -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js" integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.min.js" integrity="sha512-vs7+jbztHoMto5Yd/yinM4/y2DOkPLt0fATcN+j+G4ANY2z4faIzZIOMkpBmWdcxt+596FemCh9M18NUJTZwvw==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
+  <script src="https://connect.trezor.io/8/trezor-connect.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="js/functions.js"></script>
+  <script src="js/ko-extensions.js"></script>
+  <script src="js/api-client.js"></script>
+
+  <script type="text/javascript" src="js/build/ethereum.js"></script>
+
+  <script type="text/javascript">
+    var bip44Path = "m/44'/60'/0'/0/0";
+    var TrezorConnect = window.TrezorConnect;
+
+    TrezorConnect.init({
+      lazyLoad: true, // this param will prevent iframe injection until TrezorConnect.method will be called
+      manifest: {
+        email: 'bluegreen-test@seapunk.net',
+        appUrl: 'https://test.bluegreen.crypto',
+      }
+    });
+
+    var rpc = "https://rpc.ftm.tools";
+    var chainId = 250;
+    var contractAddress = "0x0b0a2fA1FAE23D22E6266e6d0FaA820C54a9A33a";
+    var address = "0x2C60d1ef681c63EbDb3045e24C7213a0f6AADA07";
+    var DefisTestObj;
+    var web3 = new Web3(rpc);
+    web3.eth.defaultAccount = address;
+
+    // set the default common
+    web3.eth.defaultCommon = {
+      customChain: {
+        name: 'cool chain',
+        chainId
+      }
+    };
+
+    function DefisTest() {
+      var DefisTest = this;
+      DefisTest.content = ko.observable("try signAndSendTransaction");
+      _.extend(DefisTest, {
+        favorites: ko.observableArray(load("favorites")),
+        chainID: ko.observable(load('chainID')),
+        address: ko.observable(load('address')),
+        contractAddress: ko.observable(load('contractAddress')),
+        methodName: ko.observable(load('methodName')),
+        parameters: ko.observable(load('parameters'))
+      });
+
+      _.extend(DefisTest, {
+        saveFavorite: () => {
+          DefisTest.favorites.push(transactionParams())
+        }
+      });
+
+      function transactionParams() {
+        var p = {
+          chainID: DefisTest.chainID(),
+          address: DefisTest.address(),
+          contractAddress: DefisTest.contractAddress(),
+          methodName: DefisTest.methodName(),
+          parameters: DefisTest.parameters()
+        };
+
+        if (_.isEmpty(p.parameters)){
+          p.parameters = null;
+        }
+        console.log('params',p);
+        return p;
+      }
+      var saveVars = 'chainID address contractAddress methodName parameters'.split(' ');
+      var saveArrays = "favorites".split(' ');
+
+      _.each(saveVars, s => {
+        DefisTest[s].extend({
+          save: s
+        });
+      })
+      _.each(saveArrays, s => {
+        DefisTest[s].subscribe(saveToLocalStorage(s, DefisTest), DefisTest, "arrayChange");
+      });
+
+      _.extend(DefisTest, {
+        signAndSendTransaction: () => signAndSendTransaction(transactionParams())
+      });
+    }
+
+    function signAndSendTransaction({
+      chainID,
+      address,
+      contractAddress,
+      methodName,
+      parameters
+    }) {
+      Promise.all([
+          Api.abi({
+            chainID,
+            contractAddress
+          }),
+          web3.eth.getTransactionCount(address)
+        ])
+        .then(([result, nonce]) => {
+
+          var contract = new web3.eth.Contract(JSON.parse(result.abi), contractAddress);
+          contract.defaultCommon = web3.eth.defaultCommon;
+          var contractMethod;
+          var log;
+          if (parameters || parameters == 0) {
+            var arr = ('' + parameters).split(' ');
+            log = `${chainID} ${contractAddress}.${methodName}(${arr})`;
+            contractMethod = contract.methods[methodName].apply(this, arr); //.call({from:address});//)//({from:address})
+          } else {
+            log = `${chainID} ${contractAddress}.${methodName}()`;
+            contractMethod = contract.methods[methodName](); //.call()
+          }
+          console.log(log);
+
+          //var contractMethod = contract.methods.withdraw(11, 0);
+
+          var gasLimit = 182383;
+          return contractMethod.estimateGas({
+              gas: gasLimit,
+              from: address
+            })
+            .then(gas => {
+              gas = gas * 2000000;
+              console.log('gas', gas);
+
+              var common = EthereumJS.Common.default.custom({
+                chainId: 250
+              });
+              var txData = {
+                nonce: '0x' + nonce.toString(16),
+                gasPrice: '0x' + gas.toString(16),
+                gasLimit: '0x' + (gasLimit).toString(16),
+                to: contractAddress,
+                value: '0x0',
+                data: contractMethod.encodeABI()
+              };
+
+              var t = EthereumJS.Transaction.fromTxData(txData, {
+                common
+              });
+
+              var tx = t.getMessageToSign(false);
+              var encoded = EthereumJS.Util.rlp.encode(tx);
+              return sign(_.extend(txData, {
+                  chainId
+                }))
+                .then(r => {
+                  console.log(r);
+                  _.extend(txData, r);
+                  var signed = EthereumJS.Transaction.fromTxData(txData, {
+                    common
+                  });
+                  var from = signed.getSenderAddress().toString();
+                  var s = signed.serialize();
+                  web3.eth.sendSignedTransaction('0x' + s.toString('hex'));
+                  //                web3.eth.sendSignedTransaction('0x' + signed);
+                });
+            });
+        }).catch(err => {
+          console.error("err", err);
+          DefisTestObj.content(err);
+        });
+    }
+
+    function sign(transaction) {
+      return new Promise((resolve, reject) => {
+
+        TrezorConnect.ethereumSignTransaction({
+          path: bip44Path,
+          transaction
+        }).then(function(result) {
+          resolve(result.payload);
+        }).catch(err => {
+          reject(err);
+        });
+      });
+    }
+
+    DefisTestObj = new DefisTest();
+    ko.applyBindings(DefisTestObj);
+  </script>
+
+</body>
+
+</html>

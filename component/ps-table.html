@@ -1,0 +1,9 @@
+<h3>my assets table</h3>
+
+<button data-bind="click:refresh">refresh</button>
+<span data-bind="text:status"></span>
+
+<div class="ps-table" data-bind="foreach:assets">
+  <ps-table-row class="table-row" params="asset:$data">
+    </ps-table-row>
+</div>

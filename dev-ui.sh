@@ -1,0 +1,1 @@
+npx browser-sync http://localhost:5678 'public' -w
