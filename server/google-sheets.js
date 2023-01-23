@@ -1,6 +1,6 @@
 var {
   google
-} = require('googleapis');
+} = require('@googleapis/sheets');
 var _ = require('lodash');
 var googleAuth = require('./google-auth.js');
 

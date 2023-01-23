@@ -1,6 +1,6 @@
 var {
   google
-} = require('googleapis');
+} = require('@googleapis/oauth2');
 var _ = require('lodash');
 /*
 var {

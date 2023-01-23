@@ -29,6 +29,8 @@
   "dependencies": {
     "@ethereumjs/common": "^3.0.2",
     "@ethereumjs/tx": "^4.0.2",
+    "@googleapis/oauth2": "^1.0.0",
+    "@googleapis/sheets": "^4.0.1",
     "@openzeppelin/contract-loader": "^0.6.3",
     "@truffle/hdwallet-provider": "^2.1.5",
     "agenda": "^5.0.0",
@@ -42,7 +44,6 @@
     "express": "^4.18.2",
     "folder-hash": "^4.0.4",
     "gas-price-oracle": "^0.5.2",
-    "googleapis": "^110.0.0",
     "install": "^0.13.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
