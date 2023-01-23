@@ -1,6 +1,4 @@
-var {
-  google
-} = require('@googleapis/oauth2');
+var Auth = require('@googleapis/oauth2');
 var _ = require('lodash');
 /*
 var {
@@ -9,9 +7,8 @@ var {
 var secretManagerServiceClient = new SecretManagerServiceClient();
 */
 var client = null;
-
 function get() {
-  var auth = new google.auth.GoogleAuth({
+  var auth = new Auth.auth.GoogleAuth({
     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
     scopes: ['https://www.googleapis.com/auth/spreadsheets']
   })

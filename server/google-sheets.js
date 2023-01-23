@@ -1,6 +1,5 @@
-var {
-  google
-} = require('@googleapis/sheets');
+var google = require('@googleapis/sheets');
+
 var _ = require('lodash');
 var googleAuth = require('./google-auth.js');
 
@@ -24,7 +23,8 @@ function getSheets() {
           resolve(sheets);
         })
         .catch(err => {
-          console.error("can't get sheets");
+          console.error("can't get sheets", err.message);
+
           reject(err);
         });
     }
