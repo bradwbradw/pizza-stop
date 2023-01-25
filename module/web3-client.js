@@ -17,8 +17,7 @@ const { GasPriceOracle } = require('gas-price-oracle');
 
 var utils = Web3.utils;
 
-var divisor = 1000000000000000000;
-var timeout = 10000;
+var timeout = 30000;
 var chainMap = {};
 
 function get(chainID) {
