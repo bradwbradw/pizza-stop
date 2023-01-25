@@ -38,7 +38,8 @@ var assetData = {
       .catch(err => {
         _.unset(map, _.toLower(ticker));
         persistMap();
-        return promise.resolve(null);
+        console.log("unset from map: " + ticker, err.message);
+        return Promise.resolve(null);
       });
   },
   updateOrGet: (ticker) => {
