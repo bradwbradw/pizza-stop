@@ -713,7 +713,7 @@ var customABIs = {
   reserve1: [
     {
       "inputs": [],
-      "name": "reserve0",
+      "name": "reserve1",
       "outputs": [
         {
           "internalType": "uint256",
