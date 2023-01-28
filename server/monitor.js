@@ -1,5 +1,4 @@
 
-
 var balance = require('./balance.js');
 var assetData = require('./asset-data');
 var notify = require('./notify.js');
@@ -52,6 +51,18 @@ var checks = {
     //interval: "1 minute",
     startTime: moment().add(30, 'seconds').toDate()
   },
+  'clear gecko asset keys': {
+    enabled: true,
+    interval: "1 week",
+    action: () => {
+      cache.clearPersistant('gecko-coin-list')
+        .then(() => {
+          return {
+            message: 'cleared the gecko asset keys'
+          }
+        })
+    }
+  },
   //extend to check all native token balances
   'check ftm': {
     //runThisOnly: true,
@@ -83,7 +94,7 @@ var checks = {
   },
   'update asset data': {
     enabled: true,
-    interval: "29 minutes",
+    interval: "23 hours",
     fetch: () => {
       return googleSheets.sheetTickers()
         .then(assetData.addTickers)
@@ -197,7 +208,7 @@ var checks = {
     condition: (swap) => {
       var usd = _.get(swap, 'value');
 
-      return _.isNumber(usd) && usd > 3;
+      return _.isNumber(usd) && usd > 5;
     },
     action: ({ pricesResponse }) => {
 
@@ -236,7 +247,42 @@ function delay(ms) {
 function job(name, check) {
   var step = 'fetch';
   console.log(`running job ${name}`);
-  return check.fetch().catch(e => {
+
+  function doAction(result) {
+
+    if (_.isFunction(check, 'action')) {
+      step = 'action';
+      return check.action(result)
+        .catch(e => {
+          if (e == 'retry') {
+            return delay(10 * 1000).then(() => {
+              console.log(`retrying ${name} action now`);
+              return check.action(result);
+            });
+          } else {
+            return Promise.reject(e);
+          }
+        })
+        .then(result => {
+          if (_.isString(_.get(result, 'message'))) {
+            notify.notify(result.message);
+          }
+
+          return Promise.resolve();
+        })
+    } else {
+      return Promise.resolve(result);
+    }
+  }
+
+  function doFetch() {
+    if (_.isFunction(check, 'fetch')) {
+      return check.fetch();
+    } else {
+      return Promise.resolve();
+    }
+  }
+  return doFetch().catch(e => {
     if (e == 'retry') {
       console.log('retrying ...');
       return delay(3000).then(check.fetch);
@@ -252,23 +298,7 @@ function job(name, check) {
         conditionCheckResult
       ) {
         if (_.isFunction(_.get(check, 'action'))) {
-          step = 'action';
-          return check.action(result)
-            .catch(e => {
-              if (e == 'retry') {
-                console.log('retrying...');
-                return delay(1500).then(() => check.action(result));
-              } else {
-                return Promise.reject(e);
-              }
-            })
-            .then(result => {
-              if (_.isString(_.get(result, 'message'))) {
-                notify.notify(result.message);
-              }
-
-              return Promise.resolve();
-            })
+          return doAction(result);
         } else {
           return Promise.resolve(result);
         }
@@ -285,7 +315,13 @@ function job(name, check) {
     } else if (_.isString(_.get(result, 'message'))) {
       notify.notify(result.message);
     } else {
-      notify.notify(`task completed: ${name}`);
+      return doAction().then(result => {
+        if (_.isString(_.get(result, 'message'))) {
+          notify.notify(result.message);
+        } else {
+          notify.notify(`task completed: ${name}`);
+        }
+      })
     }
     return Promise.resolve();
   }).catch(err => {

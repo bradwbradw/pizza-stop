@@ -66,10 +66,16 @@ function setPersistent(key, data) {
     console.log('will not save that data ' + key + ' to cache');
   }
 }
+
+function clearPersistent(key) {
+  localStorage.setPersistent(key, null);
+}
+
 module.exports = {
   check,
   set,
   checkPersistent,
-  setPersistent
+  setPersistent,
+  clearPersistent
 }
 
