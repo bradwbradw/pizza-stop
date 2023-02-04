@@ -102,7 +102,7 @@ function doGeckoRequest({ ticker, chainID }) {
             });
         })
       } else {
-        return Promise.reject("no id for " + params.ticker);
+        return Promise.reject("unable to find gecko API id for: " + ticker);
       }
     });
 }

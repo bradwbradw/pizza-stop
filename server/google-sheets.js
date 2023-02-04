@@ -80,6 +80,7 @@ function printPrices(pricesMap) {
           _.set(existingMap, t, pricesMap[_.toLower(t)]);
         }
       })
+      console.log(`updating ${_.size(existingMap)} rows in sheet ${pricesSheetID}.`);
       return write(pricesSheetID, 'portfolio', _.toPairs(existingMap));
     });
 }

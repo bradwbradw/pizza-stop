@@ -95,14 +95,14 @@ var checks = {
   'update asset data': {
     enabled: true,
     interval: "23 hours",
-    fetch: () => {
+    action: () => {
       return googleSheets.sheetTickers()
         .then(assetData.addTickers)
         .then(assetData.updateAll)
         .then(googleSheets.printPrices)
     },
     condition: null,
-    action: null
+    //    action: null
   },
   'check usdt': {
     enabled: false,
@@ -122,7 +122,7 @@ var checks = {
   'dca': {
     enabled: false,
     //    interval: '14 days',
-    startIn: "5 milliseconds",
+    startTime: "5 milliseconds",
     fetch: () => {
       console.log('fetching dca...');
       return swap.prepare({
@@ -246,12 +246,13 @@ function delay(ms) {
 
 function job(name, check) {
   var step = 'fetch';
-  console.log(`running job ${name}`);
 
   function doAction(result) {
 
-    if (_.isFunction(check, 'action')) {
+    if (_.isFunction(_.get(check, 'action'))) {
       step = 'action';
+
+      //console.log(name, step);
       return check.action(result)
         .catch(e => {
           if (e == 'retry') {
@@ -276,9 +277,11 @@ function job(name, check) {
   }
 
   function doFetch() {
-    if (_.isFunction(check, 'fetch')) {
+    if (_.isFunction(_.get(check, 'fetch'))) {
+      //console.log(name, step);
       return check.fetch();
     } else {
+      //console.log(name, 'no fetch found');
       return Promise.resolve();
     }
   }
