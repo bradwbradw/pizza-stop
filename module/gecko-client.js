@@ -16,7 +16,6 @@ var fields = 'id symbol platforms categories name public_notice additional_notic
 var GeckoApi;
 
 var geckoCoins;
-var bscGeckoCoins;
 
 var timeout = 10000;
 
@@ -49,7 +48,7 @@ function getGeckoCoins() {
       return g.apis.coins.get_coins_list().then(r => {
         var o = {};
         _.each(r.body, coin => {
-          console.log(coin);
+          //          console.log(coin);
           var t = coin.symbol.toUpperCase();
           if (!_.get(o, t) && aGoodId(coin.id, false)) {
             _.set(o, t, [coin.id]);
@@ -60,6 +59,7 @@ function getGeckoCoins() {
         return o;
       });
     }).then(coins => {
+      console.log(`persisting ${_.size(coins)} gecko coins in map`);
       return cache.setPersistent(geckoCacheKey, coins);
     });
   } else {
@@ -134,7 +134,7 @@ function tickerFromContract(chainID, address) {
   return _.toUpper(_.get(chainAddressTickerMap, `${chainID}-${address}`, ""));
 }
 
-var geckoTimeout = 2210;
+var geckoTimeout = 6010;
 // Gecko free API has a rate limit of 10-50 calls per minute
 // min 1200, max 6000 ms
 function crosschainPrice(ticker) {
@@ -142,9 +142,9 @@ function crosschainPrice(ticker) {
 }
 
 function asset(ticker, chainID) {
-  console.log('gecko.get with timeout ' + geckoTimeout, ticker);
   return queue.queuedTask(
     () => {
+      console.log('execute gecko.get with timeout ' + geckoTimeout, ticker);
       var cacheKey = `gecko-asset-${_.toLower(ticker)}`;
       var cached = cache.check(cacheKey);
       var p;

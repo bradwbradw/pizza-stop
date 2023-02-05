@@ -10,7 +10,6 @@ var sheets;
 function getSheets() {
 
   return new Promise(async (resolve, reject) => {
-    debugger;
     if (sheets && sheets.spreadsheets) {
       resolve(sheets);
     } else {

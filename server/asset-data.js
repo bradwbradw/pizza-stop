@@ -15,10 +15,6 @@ function persistMap() {
   console.log('persisted', _.size(map));
   //console.log('persisted', map);
 }
-function persistTickers() {
-  cache.setPersistent(tickersKey, tickers);
-}
-
 var assetData = {
   get: (ticker) => {
     return _.get(map, _.toLower(ticker));

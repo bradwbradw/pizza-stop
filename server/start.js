@@ -472,6 +472,9 @@ app.get('/donkeys', (req, res) => {
   }
 });
 
+//monitor.runJobOnce("update asset data");
+
+
 app.get('/rescan-donkeys', (req, res) => {
   donkeys();
   res.json({ rescanning: true });

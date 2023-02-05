@@ -44,51 +44,14 @@ function setMonitorData(key, value) {
 }
 
 
-var checks = {
-  'notif test start in 30 secs': {
-    enabled: false,
-    fetch: () => Promise.resolve({ message: `notif test 1 minute ${moment()}` }),
-    //interval: "1 minute",
-    startTime: moment().add(30, 'seconds').toDate()
-  },
+var jobMap = {
   'clear gecko asset keys': {
     enabled: true,
     interval: "1 week",
     action: () => {
       cache.clearPersistent('gecko-coin-list')
-        .then(() => {
-          return {
-            message: 'cleared the gecko asset keys'
-          }
-        })
-    }
-  },
-  //extend to check all native token balances
-  'check ftm': {
-    //runThisOnly: true,
-    enabled: false,
-    interval: "45 minutes",
-    fetch: () => {
-      return balance.getNumber({
-        chainID: "250",
-        address: process.env.BRAD_T
-      }).then(b => {
-        console.log("b", b);
-        return b;
-      });
-    },
-    condition: (balance) => {
-      var existing = getMonitorData("check ftm");
-      var dec8 = getMonitorData("check FTM Dec 8");
-      if (existing && existing < balance) {
-        setMonitorData("check ftm", balance);
-        return { message: `FTM balance increased from ${existing} to ${balance} (Dec 8:${dec8})` };
-      } else if (existing) {
-        return false;
-      } else {
-        setMonitorData("check ftm", balance);
-        setMonitorData("check FTM Dec 8", balance);
-        return { message: `FTM balance baseline persisted: ${balance}` };
+      return {
+        message: 'cleared the gecko asset keys'
       }
     }
   },
@@ -122,7 +85,6 @@ var checks = {
   'dca': {
     enabled: false,
     //    interval: '14 days',
-    startTime: "5 milliseconds",
     fetch: () => {
       console.log('fetching dca...');
       return swap.prepare({
@@ -146,13 +108,16 @@ var checks = {
           process.env.BRAD_T,
           8.6
         );
+      } else {
+        return {
+          message: 'bad pricesResponse'
+        };
       }
     }
   },
   'xen': {
     enabled: true,
     interval: '50 minutes',
-    //startTime: moment().add(1, "seconds").toDate(),
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
       return xen.xenCheck(_.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]), _.shuffle(["43114", "137", "1284"]));
@@ -187,8 +152,7 @@ var checks = {
   },
   'stepn': {
     enabled: true,
-    interval: "35 minutes",
-    //startTime: moment().add(0.0000001, "minutes").toDate(),
+    interval: "23 hours",
     fetch: () => {
       var o = {
         tickers: ['GST-BSC'],
@@ -245,32 +209,39 @@ function delay(ms) {
 }
 
 function job(name, check) {
+  console.log(`executing job: ${name}`);
   var step = 'fetch';
 
   function doAction(result) {
+    var finish = (result) => {
+      if (_.isString(_.get(result, 'message'))) {
+        notify.notify(result.message);
+      }
+
+      return Promise.resolve();
+    };
 
     if (_.isFunction(_.get(check, 'action'))) {
       step = 'action';
 
       //console.log(name, step);
-      return check.action(result)
-        .catch(e => {
-          if (e == 'retry') {
-            return delay(10 * 1000).then(() => {
-              console.log(`retrying ${name} action now`);
-              return check.action(result);
-            });
-          } else {
-            return Promise.reject(e);
-          }
-        })
-        .then(result => {
-          if (_.isString(_.get(result, 'message'))) {
-            notify.notify(result.message);
-          }
-
-          return Promise.resolve();
-        })
+      var maybeAPromise = check.action(result);
+      if (maybeAPromise.then) {
+        return maybeAPromise
+          .catch(e => {
+            if (e == 'retry') {
+              return delay(10 * 1000).then(() => {
+                console.log(`retrying ${name} action now`);
+                return check.action(result);
+              });
+            } else {
+              return Promise.reject(e);
+            }
+          })
+          .then(finish)
+      } else {
+        return finish(maybeAPromise);
+      }
     } else {
       return Promise.resolve(result);
     }
@@ -342,37 +313,31 @@ function startSchedule() {
   interval = {};
 
   //dev aid
-  var focused = _.pickBy(checks, (check, name) => _.get(check, 'runThisOnly'));
+  var focused = _.pickBy(jobMap, (check, name) => _.get(check, 'runThisOnly'));
   //  console.log("11111", focused);
   if (_.size(focused) > 0) {
     var focus = _.toPairs(focused)[0][1];
     var name = _.toPairs(focused)[0][0];
     //    console.log("22222", focus);
     //    console.log(`only running "${name}" monitor`);
-    checks = focused;
+    jobMap = focused;
     job(name, focus);
   } else if (agenda) {
     // prod behaviour
 
     agenda.start()
       .then(() => {
-        var goodChecks = _.pickBy(checks, 'enabled');
+        var goodChecks = _.pickBy(jobMap, 'enabled');
         return Promise.all(_.map(goodChecks, (check, name) => {
           console.log('defining check ', name);
-          agenda.cancel({ name })
-            .then(() => {
-              agenda.define(name, () => job(name, check));
-
-              if (_.get(check, 'startTime')) {
-                var date = check.startTime;
-                console.log('job start at', date);
-                return agenda.schedule(date, name);
-              } else {
-                return agenda.every(check.interval, name);
-              }
-            }).catch(err => {
-              console.log('agenda cancel fails ', err);
+          agenda.define(name, () => {
+            console.log("JOB START", name);
+            return job(name, check).then(() => {
+              console.log("JOB COMPLETE", name);
             });
+          });
+
+          return agenda.every(check.interval, name);
         }));
       });
   } else {
@@ -381,7 +346,12 @@ function startSchedule() {
 
 }
 
+function runJobOnce(name) {
+  return job(name, jobMap[name]);
+}
+
 
 module.exports = {
-  startSchedule
+  startSchedule,
+  runJobOnce
 }
