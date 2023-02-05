@@ -75,6 +75,12 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const googleSheets = require('./google-sheets.js');
 //const { resolveNaptr } = require('dns');
 
+_.each("gecko-swagger.json moralis-swagger.json 3commas-swagger.json".split(' '), doc => {
+  app.get(`/${doc}`, (req, res) => {
+    res.json(require(`./${doc}`));
+  })
+});
+
 geckoClient.setup(domain);
 moralisClient.setup(domain);
 //threeCommasClient.setup(domain);
@@ -102,12 +108,6 @@ app.use(function (req, res, next) {
     }
   });
   next();
-});
-
-_.each("gecko-swagger.json moralis-swagger.json 3commas-swagger.json".split(' '), doc => {
-  app.get(`/${doc}`, (req, res) => {
-    res.json(require(`./${doc}`));
-  })
 });
 
 var assetHandler = (req, res) => {
