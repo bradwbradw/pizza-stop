@@ -55,7 +55,7 @@ var checks = {
     enabled: true,
     interval: "1 week",
     action: () => {
-      cache.clearPersistant('gecko-coin-list')
+      cache.clearPersistent('gecko-coin-list')
         .then(() => {
           return {
             message: 'cleared the gecko asset keys'
