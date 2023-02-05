@@ -68,7 +68,7 @@ function setPersistent(key, data) {
 }
 
 function clearPersistent(key) {
-  localStorage.setPersistent(key, null);
+  localStorage.setItem(key, null);
 }
 
 module.exports = {
