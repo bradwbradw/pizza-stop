@@ -94,7 +94,7 @@ var checks = {
   },
   'update asset data': {
     enabled: true,
-    interval: "23 hours",
+    interval: "55 minutes",
     action: () => {
       return googleSheets.sheetTickers()
         .then(assetData.addTickers)
