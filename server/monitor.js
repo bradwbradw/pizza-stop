@@ -55,7 +55,7 @@ var jobMap = {
       }
     }
   },
-  'update asset data': {
+  'update-assets': {
     enabled: true,
     interval: "55 minutes",
     action: () => {
@@ -347,7 +347,12 @@ function startSchedule() {
 }
 
 function runJobOnce(name) {
-  return job(name, jobMap[name]);
+  if (_.isObject(jobMap[name])) {
+    notify(moment(new Date()).format() + " " + name);
+    return job(name, jobMap[name]);
+  } else {
+    return Promise.reject("no job with that name: " + name);
+  }
 }
 
 

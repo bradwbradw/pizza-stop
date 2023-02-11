@@ -90,11 +90,12 @@ function sheetTickers() {
       var clean = _.filter(t, row => {
         return (
           _.isArray(row) &&
-          _.size(row) > 1 &&
+          _.size(row) > 0 &&
           _.isString(row[0]) &&
           !_.isEmpty(row[0])
         );
       });
+      console.log('google sheets', clean);
       return _.keys((_.fromPairs(clean)));
     })
 }

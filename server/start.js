@@ -478,7 +478,17 @@ app.get('/donkeys', (req, res) => {
 app.get('/rescan-donkeys', (req, res) => {
   donkeys();
   res.json({ rescanning: true });
-})
+});
+
+app.get('/jobs/:jobName', (req, res) => {
+  console.log(req.params);
+  monitor.runJobOnce(req.params.jobName).then(result => {
+    res.json(result);
+  }).catch(result => {
+    console.log(result);
+    res.json({ error: "something went wrong" });
+  })
+});
 /*
 var count = 0;
 
