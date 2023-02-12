@@ -152,7 +152,7 @@ var jobMap = {
   },
   'stepn': {
     enabled: true,
-    interval: "23 hours",
+    interval: "100 minutes",
     fetch: () => {
       var o = {
         tickers: ['GST-BSC'],
