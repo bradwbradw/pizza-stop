@@ -348,7 +348,7 @@ function startSchedule() {
 
 function runJobOnce(name) {
   if (_.isObject(jobMap[name])) {
-    notify(moment(new Date()).format() + " " + name);
+    notify.notify(moment(new Date()).format() + " " + name);
     return job(name, jobMap[name]);
   } else {
     return Promise.reject("no job with that name: " + name);
