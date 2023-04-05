@@ -9,7 +9,7 @@ var chains = require('./chains.js');
 
 var chainPairs = _.toPairs(chains);
 
-var preferred = "alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(" ");
+var preferred = "equalizer-dex alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(" ");
 
 var fields = 'id symbol platforms categories name public_notice additional_notices description links image market_data.market_cap.usd market_data.market_cap.btc community_data.twitter_followers market_data.total_value_locked.usd market_data.total_value_locked.btc sentiment_votes_up_percentage market_cap_rank market_data.price_change_percentage_7d market_data.price_change_percentage_24h market_data.price_change_percentage_30d'.split(' ');
 
