@@ -95,7 +95,8 @@ function getContract(chainID, contractAddress, implementationContractAddress) {
     } catch (err) {
       return Promise.reject(err);
     }
-    return Promise.resolve(contract);
+    return checkForProxy(chainID, contract);
+    //Promise.resolve(contract);
   } else {
     //console.log('cached ABI not found', localStorageKey);
     //get abi from etherscan et al then return web3 contract from that
@@ -114,36 +115,29 @@ function getContract(chainID, contractAddress, implementationContractAddress) {
           return Promise.reject(err);
         }
         if (implementationContractAddress) {
+          cache.setPersistent(localStorageKey, abiResult);
           return contract;
         } else {
+          console.log('checking for proxy', chainID, contract._address);
           return checkForProxy(chainID, contract)
-            .then(implementation => {
-              if (_.isString(implementation)) {
-                //                console.log(`implementation for ${contractAddress} is ${implementation}`);
-                return getContract(chainID, contractAddress, implementation);
-              } else if (implementation) {
-                console.log('implementation is not string?', implementation);
-                return Promise.reject('bad implementation address found');
-              } else {
-                cache.setPersistent(localStorageKey, abiResult);
-                return contract;
-              }
+            .then(c => {
+              cache.setPersistent(localStorageKey, abiResult);
+              return c;
+            })
+            .catch(err => {
+              console.log('check for proxy failed', err);
+              return Promise.reject(err);
             });
         }
       })
   }
 }
 
+
 function checkForProxy(chainID, contract) {
-  //CHECK FOR PROXY
   var yes = _.isFunction(_.get(contract, 'methods.implementation')) &&
     _.isFunction(_.get(contract, 'methods.upgradeTo')) &&
     _.isFunction(_.get(contract, 'methods.admin'));
-  //  console.log('contract', contract);
-  // process.exit(1)
-  //  console.log(`is proxy: ${chainID}-${contract._address}? ${yes ? 'yes' : 'no'}`);
-  //TASK view memory location to get implementation address
-  //console.log(contract);
   if (yes) {
 
     var magicStorageSlotForImplementation = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
@@ -152,22 +146,25 @@ function checkForProxy(chainID, contract) {
 
     return (get(chainID)).eth.getStorageAt(contract._address, magicStorageSlotForImplementation)
       .then(val => {
-        //        console.log('val', val);
         if (_.isString(val) && _.includes(val, '0x00000')) {
           var removePadding = _.last(_.split(val, 'x'));
           var addy = _.trimStart(removePadding, '0');
-          //          console.log('got addy', addy);
           return `0x${utils.padLeft(addy, 40)}`;
         } else {
-          return Promise.reject('unexpected value from implementatino storage slot', val);
+          return Promise.reject('unexpected value from implementation storage slot', val);
         }
 
+      })
+      .then(implementation => {
+        return getContract(chainID, contract._address, implementation);
       }).catch(err => {
-        console.log('cannot read storage to find implementation');
-        return Promise.resolve(null);
+        console.log('cannot read storage to find implementation', chainID, contract._address);
+        console.log('error was', err);
+        return Promise.resolve(contract);
       })
   } else {
-    return Promise.resolve(null);
+    //    console.log('found to not be proxy:', chainID, contract._address);
+    return Promise.resolve(contract);
   }
 }
 
@@ -229,6 +226,7 @@ function callContractMethod({ chainID, contractAddress, address, addressIndex, m
     return Promise.reject("no chainID");
   }
   var makeCall = contract => {
+
     if (!_.isEmpty(methodName) && _.isFunction(_.get(contract, `methods.${methodName}`))) {
 
       var p;
@@ -266,7 +264,7 @@ function callContractMethod({ chainID, contractAddress, address, addressIndex, m
     .then(makeCall)
     .catch(err => {
 
-      console.log('getContract error:', err);
+      console.log('getContract.then(makeCall) error:', err);
       var abi = _.get(customABIs, methodName);
       if (!_.isEmpty(abi)) {
         console.log(`using custom ABI for ${_.get(_.first(abi), 'type')} ${methodName}`);
@@ -526,6 +524,7 @@ function decimals(chainID, tickerOrAddress) {
         })
           .then(decimals => {
             if (fns.isNumeric(decimals)) {
+
               return cache.setPersistent(key, decimals);
             } else {
               return Promise.reject(`unable to get decimals for ${chainID} ${ticker}`);
