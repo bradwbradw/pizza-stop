@@ -117,10 +117,10 @@ var jobMap = {
   },
   'xen': {
     enabled: true,
-    interval: '50 minutes',
+    interval: '25 minutes',
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
-      return xen.xenCheck(_.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]), _.shuffle(["43114", "137", "1284"]));
+      return xen.xenCheck(_.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]), _.shuffle(["43114"]));
     },
     condition: (result) => {
       if (_.isObject(result) && result.chainID && result.address) {
@@ -132,7 +132,7 @@ var jobMap = {
     action: (result) => {
       var { chainID, address, addressIndex, maturity } = result;
 
-      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 128);
+      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 365);
       if (maturity === '0') {
         console.log('do claim ranks for ', chainID, address);
         return claimRanksFn().then(() => {
@@ -163,16 +163,17 @@ var jobMap = {
         .then(result => {
           return swap.prepare({
             spendTicker: 'GST-BSC',
-            baseTicker: 'USDC',
+            baseTicker: 'GMT',
             spendAmount: _.get(result, 'balance.GST-BSC', 0),
             chainID: '56'
           });
         })
     },
     condition: (swap) => {
+      notify.notify(swap);
       var usd = _.get(swap, 'value');
 
-      return _.isNumber(usd) && usd > 5;
+      return _.isNumber(usd) && usd > 50000;
     },
     action: ({ pricesResponse }) => {
 

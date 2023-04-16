@@ -306,7 +306,7 @@ function estimateGasWei(chainID, speed) {
   }
   return oracle.gasPrices()
     .then(prices => {
-      var price = prices[speed];//700 for moonbeam
+      var price = prices[speed] || prices['baseFee'];//700 for moonbeam
       var gasPrice = _.round(price * (10 ** 9));
       if (!_.isNaN(gasPrice) && _.isNumber(gasPrice)) {
         console.log(`${chainID} ${speed} gas price is ${price} gWei = ${gasPrice} wei`);
