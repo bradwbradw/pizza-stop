@@ -170,7 +170,7 @@ var jobMap = {
         })
     },
     condition: (swap) => {
-      notify.notify(swap);
+      console.log('stepn swap', swap);
       var usd = _.get(swap, 'value');
 
       return _.isNumber(usd) && usd > 50000;
