@@ -50,37 +50,62 @@
 
   <div id="page">
 
-    <h2>Run Job</h2>
-    <button data-bind="click:()=> query('jobs/update-assets')">update assets</button>
-    <h2>Asset</h2>
-    <h3>asset/:ticker</h3>
-    <h4>method: GET</h4>
-    <button class="try" data-bind="click:()=> query('asset/btc')">
-      asset/btc
-    </button>
+    <div>
 
-    <h2>Balance</h2>
-    <h3>/balance</h3>
-    <h4>method: GET </h4>
-    <h4>query params:
-      chainID address ticker
-    </h4>
+      <h2>Run Job</h2>
+      <button data-bind="click:()=> query('jobs/update-assets')">update assets</button>
+      <h2>Asset</h2>
+      <h3>asset/:ticker</h3>
+      <h4>method: GET</h4>
+      <button class="try" data-bind="click:()=> query('asset/btc')">
+        asset/btc
+      </button>
+    </div>
 
-    <button class="try"
-      data-bind="click:()=> query('balance?chainID=1&address=0xd8da6bf26964af9d7eed9e03e53415d37aa96045&ticker=shib')">
-      try
-    </button>
-    <h2>Abi</h2>
-    <h3>/abi</h3>
-    <h4>method: GET </h4>
-    <h4>query params:
-      chainID contractAddress ticker
-    </h4>
-    <button class="try"
-      data-bind="click:()=> query('abi?chainID=1&address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984')">
-      try
-    </button>
+    <div>
 
+      <h2>Balance</h2>
+      <h3>/balance</h3>
+      <h4>method: GET </h4>
+      <h4>query params:
+        chainID address ticker
+      </h4>
+
+      <button class="try"
+        data-bind="click:()=> query('balance?chainID=1&address=0xd8da6bf26964af9d7eed9e03e53415d37aa96045&ticker=shib')">
+        try
+      </button>
+    </div>
+    <div>
+
+      <h2>Abi</h2>
+      <h3>/abi</h3>
+      <h4>method: GET </h4>
+      <h4>query params:
+        chainID contractAddress ticker
+      </h4>
+      <button class="try"
+        data-bind="click:()=> query('abi?chainID=1&address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984')">
+        try
+      </button>
+
+    </div>
+
+
+    <div>
+
+      <h2>Call contract (Read)</h2>
+      <h3>/read-contract</h3>
+      <h4>method: GET </h4>
+      <h4>query params:
+        chainID contractAddress address methodName parameters returnIndeces
+      </h4>
+      <button class="try"
+        data-bind="click:()=> query('call-contract?chainID=1&address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984&methodName=symbol')">
+        try
+      </button>
+
+    </div>
 
 
 
