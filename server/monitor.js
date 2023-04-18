@@ -163,7 +163,7 @@ var jobMap = {
         .then(result => {
           return swap.prepare({
             spendTicker: 'GST-BSC',
-            baseTicker: 'GMT',
+            baseTicker: 'ICE',
             spendAmount: _.get(result, 'balance.GST-BSC', 0),
             chainID: '56'
           });
@@ -171,9 +171,9 @@ var jobMap = {
     },
     condition: (swap) => {
       console.log('stepn swap', swap);
-      var usd = _.get(swap, 'value');
+      var usd = _.get(swap, 'pricesResponse.priceRoute.destUSD') * 1;
 
-      return _.isNumber(usd) && usd > 50000;
+      return _.isNumber(usd) && usd > 5.50;
     },
     action: ({ pricesResponse }) => {
 
