@@ -165,10 +165,15 @@ app.get("/read-contract", (req, res) => {
 });
 
 app.get("/abi", (req, res) => {
-  web3.getContract(req.query.chainID, req.query.contractAddress)
+
+  console.log('/abi', req.query);
+  web3.getContract(_.get(req, 'query.chainID'), _.get(req, 'query.contractAddress'))
     .then(contract => {
       console.log(contract.options.jsonInterface);
       res.json({ abi: JSON.stringify(_.get(contract, 'options.jsonInterface')) });
+    })
+    .catch(err => {
+      res.status(500).json({ error: 'something went wrong' });
     })
 });
 

@@ -85,7 +85,7 @@
         chainID contractAddress ticker
       </h4>
       <button class="try"
-        data-bind="click:()=> query('abi?chainID=1&address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984')">
+        data-bind="click:()=> query('abi?chainID=1&contractAddress=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984')">
         try
       </button>
 
@@ -101,7 +101,7 @@
         chainID contractAddress address methodName parameters returnIndeces
       </h4>
       <button class="try"
-        data-bind="click:()=> query('call-contract?chainID=1&address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984&methodName=symbol')">
+        data-bind="click:()=> query('read-contract?chainID=1&contractAddress=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984&methodName=symbol')">
         try
       </button>
 
@@ -115,9 +115,9 @@
 
     <div class="sticky">
 
+      <div class="status" data-bind="text:status"></div>
       <div class="query-status">
         <input data-bind="value: query" placeholder="endpoint url here"></input>
-        <div class="status" data-bind="text:status"></div>
       </div>
       <br />
       <pre id="result" data-bind="text: resultString">
