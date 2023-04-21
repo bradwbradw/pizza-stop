@@ -43,6 +43,11 @@ function harvestXen(chainID, addressArr) {
         parameters: `${process.env.BRAD_T} 100`,
         gasPrice: gasPriceOverride[chainID] ? gasPriceOverride[chainID] : null
       });
+    }).then(() => {
+      console.log(`${chainID} claimMintRewardAndShare ${addressIndex} done`);
+      return new Promise((resolve, reject) => {
+        setTimeout(resolve, 3000);
+      });
     });/*.catch((e) => { 
       console.log(e.message); 
       return Promise.resolve(); 
