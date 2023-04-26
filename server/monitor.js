@@ -116,7 +116,7 @@ var jobMap = {
     }
   },
   'xen': {
-    enabled: true,
+    enabled: false,
     interval: '2 minutes',
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
