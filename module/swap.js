@@ -129,7 +129,7 @@ function makeSwapMessage(route) {
   return `${_.round(outgoingTokens, 3)} ${outgoingTicker} for ${_.round(incomingTokens, 3)} ${incomingTicker} (${moment().format('MMMM Do YYYY, h:mm:ss a')})`;
 }
 
-function execute(pricesResult, userAddress, mnemonic, receiver, minFeePercent) {
+function execute(pricesResult, userAddress, mnemonic, receiver, minFeePercent, gasCategory = 'standard') {
 
 
   var gasPrice = _.get(pricesResult, 'priceRoute.gasCost');//*6;
@@ -153,7 +153,7 @@ function execute(pricesResult, userAddress, mnemonic, receiver, minFeePercent) {
   });
 
   var url = `https://apiv5.paraswap.io/transactions/${_.get(route, 'network')}`;
-  return web3.estimateGasWei(chainID, 'standard')
+  return web3.estimateGasWei(chainID, gasCategory)
     .then(wei => {
 
       return superagent.post(url)
