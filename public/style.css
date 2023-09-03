@@ -5,7 +5,9 @@
 
 body {
   font-family: helvetica, arial, sans-serif;
-  margin: 2em; }
+  margin: 2em; 
+background:#001610;
+color:#c0ffef}
 
 .bold {
   font-weight: bold; }
@@ -45,7 +47,7 @@ p {
   line-height: 1.5em; }
 
 body {
-  background-color: #1a6567;
+  background-color: --var(bg-color); }
   color: #8be8f9; }
 
 h1 {
