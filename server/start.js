@@ -188,6 +188,7 @@ app.get("/abi", (req, res) => {
       });
     })
     .catch((err) => {
+      console.error(err);
       res.status(500).json({ error: "something went wrong" });
     });
 });

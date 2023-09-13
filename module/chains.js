@@ -1,77 +1,82 @@
-var _ = require('lodash');
+var _ = require("lodash");
 
 var chains = {
-  "56": {
+  56: {
     name: "binance-smart-chain",
     ws: process.env.WS_56,
     http: process.env.HTTP_56,
     scan: "https://api.bscscan.com/api",
     native: "BNB",
     lookup: "bsc",
-    usd: "0xe9e7cea3dedca5984780bafc599bd69add087d56"
+    usd: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
   },
-  "137": {
+  137: {
     name: "polygon-pos",
     ws: process.env.WS_137,
     http: process.env.HTTP_137,
     scan: "https://api.polygonscan.com/api",
     native: "MATIC",
-    lookup: "polygon"
+    lookup: "polygon",
   },
-  "250": {
+  250: {
     name: "fantom",
     ws: process.env.WS_250,
     http: process.env.HTTP_250,
     scan: "https://api.ftmscan.com/api",
     native: "FTM",
-    lookup: "fantom"
+    lookup: "fantom",
   },
-  "43114": {
+  43114: {
     name: "avalanche",
     lookup: "avalanche",
     ws: process.env.WS_43114,
     http: process.env.HTTP_43114,
     scan: "https://api.snowtrace.io/api",
-    native: "AVAX"
+    native: "AVAX",
   },
-  "42161": {
+  42161: {
     name: "arbitrum-one",
     lookup: "arbitrum-one",
     native: "eth",
     scan: "https://api.arbiscan.io/api",
     ws: process.env.WS_42161,
-    http: process.env.HTTP_42161
+    http: process.env.HTTP_42161,
   },
-  "1": {
+  1: {
     name: "ethereum",
     lookup: "eth",
     ws: process.env.WS_1,
     http: process.env.HTTP_1,
     scan: "https://api.etherscan.io/api",
-    native: "ETH"
+    native: "ETH",
   },
-  "9001": {
+  9001: {
     name: "evmos",
     lookup: "evmos",
     http: "https://eth.bd.evmos.org:8545/",
     scan: "https://evm.evmos.org/api",
-    native: "EVMOS"
+    native: "EVMOS",
   },
 
-  "1284": {
+  1284: {
     name: "moonbeam",
     lookup: "moonbeam",
     http: "https://rpc.api.moonbeam.network/",
     scan: "https://api-moonbeam.moonscan.io/api",
-    native: "GLMR"
-  }
+    native: "GLMR",
+  },
+  84531: {
+    name: "Base Goerli",
+    lookup: "base-goerli",
+    http: "https://goerli.base.org",
+    scan: "https://goerli.basescan.org/api",
+    native: "ETH",
+  },
 };
 
 chains.all = _.keys(chains);
 
-
-module.exports = chains
-
+module.exports = chains;
 
 /*
 

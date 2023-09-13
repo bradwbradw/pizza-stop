@@ -1,9 +1,17 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  //set build path to relative
   base: "./",
+  define: {
+    global: "globalThis",
+  },
+  resolve: {
+    alias: {
+      process: "process/browser",
+      util: "util",
+    },
+  },
   plugins: [react()],
 });
