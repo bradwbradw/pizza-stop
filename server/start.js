@@ -93,6 +93,7 @@ app.use(express.static("component"));
 
 // setup static route for /book-dapp, mapped to /book-dapp/dist
 app.use("/book-dapp", express.static("book-dapp/dist"));
+app.use("/testpics", express.static("book-dapp/test"));
 
 app.use(function (req, res, next) {
   _.each(_.toPairs(req.query), (pair) => {
