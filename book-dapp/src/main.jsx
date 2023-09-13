@@ -5,7 +5,7 @@ import { WagmiConfig } from "wagmi";
 import { BookDapp } from "./BookDapp";
 import { config } from "./wagmi";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <WagmiConfig config={config}>
       <BookDapp />

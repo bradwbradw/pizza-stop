@@ -12,7 +12,7 @@
 
 # vite
 
-dist
+#dist it's a dapp
 dist-ssr
 
 # production
