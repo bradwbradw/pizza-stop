@@ -11,43 +11,141 @@
 
     <title>Blue-Green Crypto</title>
 
-    <link
-      id="favicon"
-      rel="icon"
-      href="https://cdn.glitch.com/4642a886-e4d8-4876-ad72-f6459983964c%2Ffavicon.ico?v=1614030485256"
-      type="image/x-icon"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
-    />
+    <link id="favicon" rel="icon" href="bg-smiley.svg" type="image/x-icon" />
 
     <link rel="stylesheet" href="/style.css?v=1" />
+    <style>
+      :root {
+        --c1: 1%;
+        --c2: 35%;
+        --c3: 85%;
+      }
+
+      h1.bg {
+        padding-top: 3em;
+        padding-bottom: 3em;
+        text-shadow: 10px 10px rgba(30, 30, 30, 0.1);
+        text-align: center;
+        border-radius: 10px;
+        color: darkblue;
+        font-family: "Courier New", Courier, monospace;
+        background: radial-gradient(
+          circle,
+          rgba(0, 159, 245, 1) var(--c1),
+          rgba(23, 232, 214, 1) var(--c2),
+          rgba(0, 255, 164, 1) var(--c3)
+        );
+      }
+
+      h1.bg:after {
+        content: "blue-green crypto";
+        color: brown;
+
+        mix-blend-mode: color-burn;
+      }
+      a {
+        color: var(--col);
+        background: rgb(0, 159, 245);
+        background: radial-gradient(
+          circle,
+          rgba(0, 159, 245, 1) var(--c1),
+          rgba(23, 232, 214, 1) var(--c2),
+          rgba(0, 255, 164, 1) var(--c3)
+        );
+        background-position: center;
+        color: black;
+        text-decoration: none;
+        padding: 0.3em;
+        white-space: nowrap;
+        animation: gradient 5s ease-in-out 0s infinite none running;
+        border-radius: 3px;
+        mix-blend-mode: difference;
+      }
+      a:hover {
+        background: radial-gradient(
+          circle,
+          rgba(0, 255, 164, 1) var(--c1),
+          rgba(23, 232, 214, 1) var(--c2),
+          rgba(0, 159, 245, 1) var(--c3)
+        );
+        background-position: center;
+        animation: gradient 1.2s linear 0s infinite none running;
+      }
+
+      @keyframes gradient {
+        0% {
+          background-size: 100% 100%;
+        }
+        50% {
+          background-size: 300% 300%;
+        }
+        100% {
+          background-size: 100% 100%;
+        }
+      }
+
+      .link-icons a {
+        background: none;
+        color: white;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css"
+      integrity="sha512-W/zrbCncQnky/EzL+/AYwTtosvrM+YG/V6piQLSe2HuKS6cmbw89kjYkp3tWFn1dkWV7L1ruvJyKbLz73Vlgfg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
 
   <body>
-    <h1>blue-green-crypto</h1>
+    <h1 class="bg"></h1>
     <!--
   <img src="brad.jpg" /> -->
     <p>
       Accelerating the arrival of a post-advertisement human-centric future. UX
       patterns can exhibit Data Dignity as a guiding principle through emerging
-      cryptographic technologies.
+      cryptographic technologies, novel forms of ownership and money, and
+      user-centered agents.
     </p>
+    <br /><br /><br />
 
-    <h2>Projects</h2>
+    <h2>Projects / Experiments</h2>
 
-    <p style="font-size: largeer">
-      Book NFT decentralized application
-      <a href="/book-dapp">Book Dapp</a>
+    <p style="font-size: larger">
+      <b> Book NFT: </b>Decentralized application ( mint opens Sept 20 )
+      <a href="/book-dapp">Mint yours</a>
     </p>
 
     <p class="api-link">
-      Pizza Stop Crypto: swiss-army knife of crypto tools and APIs. Currently
-      hosted here on glitch.
-      <a href="/api.html">Check out the Public API</a>
+      <b>Pizza Stop Crypto: </b> Similar to Alchemy and the like. A REST
+      interface for data on "Ethereum Virtual Machine"-powered blockchains.
+      <a href="/api.html">Try it out</a>
     </p>
+
+    <p>
+      <b> Scramples: </b> Local-Storage first audio sample manipulation and
+      playback, chops audio into slices and "scramples" it up.
+      <a href="https://scramples.xyz.gs">Play now</a>
+    </p>
+    <p>
+      <b> XYZ Spaces: </b> A novel approach to playlisting across platforms, in
+      2D spatial format.
+      <a href="https://xyz.gs">Listen and Discover</a>
+    </p>
+
+    <div class="link-icons">
+      <br /><br />
+      <a href="https://bluegreencrypto.medium.com/">
+        <i class="fa-brands fa-medium"></i>
+      </a>
+      <a href="https://twitter.com/bluegreen3000">
+        <i class="fa-brands fa-twitter"></i>
+      </a>
+      <a href="https://github.com/bradwbradw">
+        <i class="fa-brands fa-github"></i>
+      </a>
+    </div>
 
     <!--
   <h2>music</h2>
@@ -59,5 +157,9 @@
   <h2>links</h2>
 
 -->
+    <script
+      src="https://kit.fontawesome.com/f10f7f3fe3.js"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
