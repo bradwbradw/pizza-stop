@@ -47,11 +47,10 @@ p {
   line-height: 1.5em; }
 
 body {
-  background-color: --var(bg-color); }
-  color: #8be8f9; }
+  background-color: --var(bg-color); 
+  color: #8be8f9; 
+}
 
-h1 {
-  color: aqua; }
 
 li {
   margin-bottom: 5px; }
@@ -108,14 +107,6 @@ div.query-status {
   div.query-status .status {
     color: white; }
 
-a {
-  background: orange;
-  padding: 3px;
-  color: black; }
-
-a:hover {
-  background: rgba(0, 255, 0, 0.431);
-  color: #fbea66; }
 
 pre {
   color: black;
