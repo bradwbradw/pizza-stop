@@ -1,7 +1,9 @@
+import { bookNftAddress } from "./Contract";
+
 const Persistence = {
   set: (key, value) => {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      localStorage.setItem(`${bookNftAddress}-${key}`, JSON.stringify(value));
     } catch (err) {
       console.log(err);
     }
@@ -10,14 +12,14 @@ const Persistence = {
   get: (key, df) => {
     var result = df;
     try {
-      result = JSON.parse(localStorage.getItem(key));
+      result = JSON.parse(localStorage.getItem(`${bookNftAddress}-${key}`));
     } catch (err) {
       console.log(err);
     }
     return result;
   },
   delete: (key) => {
-    localStorage.removeItem(key);
+    localStorage.removeItem(`${bookNftAddress}-${key}`);
   },
 };
 
