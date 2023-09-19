@@ -6,9 +6,42 @@
     <title>book nft</title>
     <script type="module" src="./polyfills.ts"></script>
     <style>
+      .spineImage {
+        transform: scale(1);
+        transition: transform 0.5s ease-in-out;
+        z-index: 1;
+      }
       .spineImage:hover {
         transform: scale(1.1);
         transition: transform 0.5s ease-in-out;
+        z-index: 2;
+      }
+
+      .symbol-changer {
+        border: 4px solid groove;
+        border-radius: 10px;
+      }
+      .symbol-changer button {
+        border: 4px solid groove;
+        border-radius: 10px;
+        background-color: #f0f0f0;
+        margin: 5px;
+        padding: 5px;
+      }
+      .fadeOut {
+        opacity: 0;
+        transition: opacity 2.5s ease-in-out;
+      }
+      .fadeIn {
+        animation: fadeIn 3s ease-in-out 0s 1 normal forwards running;
+      }
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
       }
     </style>
   </head>
