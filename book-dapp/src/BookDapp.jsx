@@ -69,7 +69,9 @@ export function BookDapp() {
           <p style={{ fontWeight: "bold" }}>
             Purchasing or minting this digital object is for artistic and
             entertainment purposes only and there is absolutely no guarantee of
-            ongoing project evolution or financial gains
+            ongoing project evolution or re-sale gains. The contract has not
+            been audited and is provided as-is. The project is not affiliated
+            with any other project or organization.
           </p>
         </div>
       )}
