@@ -299,7 +299,7 @@ export function MintNFT({ userAddress }) {
             borderImage: "url(/images/wood.png) 30 round",
             background: "rgb(165, 95, 42)",
             marginBottom: "2em",
-            height: "200px",
+            minHeight: "200px",
           }}
         >
           {collection.map((item) => {
