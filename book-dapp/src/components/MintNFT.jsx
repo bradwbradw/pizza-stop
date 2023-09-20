@@ -16,6 +16,7 @@ import {
 import { bookNftABI, bookNftAddress } from "../modules/Contract";
 import SymbolChanger from "./SymbolChanger";
 import Persistence from "../modules/Persistence";
+import findReasonString from "../modules/FindReasonString";
 
 export function MintNFT({ userAddress }) {
   const [numberToMint, setNumberToMint] = useState(1);
@@ -26,6 +27,7 @@ export function MintNFT({ userAddress }) {
   const [focused, setFocused] = useState(null);
   const [collectionLoading, setCollectionLoading] = useState(false);
   const [symbolChangeFocus, setSymbolChangeFocus] = useState(null);
+  const [changing, setChanging] = useState(false);
 
   const mintPriceRead = useContractRead({
     abi: bookNftABI,
@@ -124,13 +126,10 @@ export function MintNFT({ userAddress }) {
   }, [isSuccess, isLoading]);
 
   useEffect(() => {
-    if (
-      ownedIDs &&
-      ownedIDs.length > 0 &&
-      ownedIDs.length !== collection.length
-    ) {
+    if (ownedIDs && ownedIDs.length !== collection.length) {
       setCollection([]);
       setCollectionLoading(true);
+      setFocused(null);
       var p = Promise.resolve();
       _.each(ownedIDs, (id) => {
         p = p.then(() => {
@@ -176,6 +175,7 @@ export function MintNFT({ userAddress }) {
             );
           })
         ) {
+          setSymbolChangeFocus(null);
           console.log("begin animation for change");
           Persistence.delete(symbolChangeFocus.id);
           getInfo(symbolChangeFocus.id).then((morphing) => {
@@ -192,6 +192,7 @@ export function MintNFT({ userAddress }) {
             setFocused(newItem);
 
             setTimeout(() => {
+              setChanging(false);
               console.log("begin cleanup for change animation finishing");
               setCollection((c) => {
                 return c.map((item) => {
@@ -242,57 +243,79 @@ export function MintNFT({ userAddress }) {
 
   return (
     <div>
-      <h3>contract address: {bookNftAddress}</h3>
+      <h2>Mint</h2>
       <label>
         Number to mint:
         <input
           type="number"
           value={numberToMint}
+          style={{ width: "3em" }}
           onChange={(event) => {
             setNumberToMint(event.target.value);
           }}
         ></input>
-        Minting {numberToMint} will cost{" "}
-        {mintPrice ? formatEther(mintPrice) : "..."} Eth
       </label>
-      <button disabled={!write || isLoading} onClick={() => write?.()}>
-        {isLoading ? "Minting..." : "Mint"}
+      <button
+        disabled={!write || isLoading || isPrepareError}
+        onClick={() => write?.()}
+      >
+        {isLoading
+          ? "Minting..."
+          : `Mint (cost: ${mintPrice ? formatEther(mintPrice) : "..."} Eth) `}
       </button>
+      {(isPrepareError || isError) && (
+        <span
+          style={{ padding: "0.2em", color: isPrepareError ? "orange" : "red" }}
+        >
+          Error:{" "}
+          {findReasonString(prepareError ?? error)
+            ? findReasonString(prepareError ?? error)
+            : (prepareError || error)?.message}
+        </span>
+      )}
+
       {isSuccess && (
         <div>
-          Successful mint!
-          <div>
-            <a href={`https://etherscan.io/tx/${data?.hash}`}>Etherscan</a>
-          </div>
-        </div>
-      )}
-      {(isPrepareError || isError) && (
-        <div style={{ color: isPrepareError ? "orange" : "red" }}>
-          Error: {(prepareError || error)?.message}
+          Successful mint!{" "}
+          <a href={`https://basescan.org/tx/${data?.hash}`}>view transaction</a>
         </div>
       )}
       <br />
       <br />
       <label>Magic Points: {numberBurned}</label>
       <br />
-      <h3>my library {ownedIDs.length > 0 ? `(${ownedIDs.length})` : ""}</h3>
+      <h3>My Library {ownedIDs.length > 0 ? `(${ownedIDs.length})` : ""}</h3>
       {!collection || collectionLoading ? (
         <>your book collection is loading...</>
       ) : (
         ""
       )}
       <>
-        <div style={{ display: "flex" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            border: "15px solid brown",
+            borderImage: "url(/images/wood.png) 30 round",
+            background: "rgb(165, 95, 42)",
+            marginBottom: "2em",
+            height: "200px",
+          }}
+        >
           {collection.map((item) => {
             return (
               <div
-                className="spineImage"
+                className={
+                  "spineImage " +
+                  (focused && focused.id === item.id ? "focused" : "")
+                }
                 key={item.name}
                 style={{
                   position: "relative",
                 }}
                 onClick={() => {
                   setFocused(item);
+                  setSymbolChangeFocus(null);
                 }}
               >
                 {/*}
@@ -301,7 +324,7 @@ export function MintNFT({ userAddress }) {
                 <img
                   src={item.spineImage}
                   style={{
-                    height: "300px",
+                    height: "200px",
                     width: "auto",
                   }}
                 />
@@ -311,14 +334,21 @@ export function MintNFT({ userAddress }) {
         </div>
         {focused && (
           <>
-            <div style={{ position: "relative", height: "300px" }}>
+            <div
+              style={{
+                position: "relative",
+                height: "600px",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <img
                 src={focused.image}
                 style={{
                   height: "100%",
                   position: "absolute",
                 }}
-                className={focused.burning ? "fadeOut " : " "}
+                className={focused.burning ? "fadeOut" : ""}
               />
               {focused.morphing && (
                 <img
@@ -331,7 +361,14 @@ export function MintNFT({ userAddress }) {
                 />
               )}
             </div>
-            <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               <br />
               <button
                 onClick={() => {
@@ -341,32 +378,41 @@ export function MintNFT({ userAddress }) {
                 Burn{" "}
                 <label style={{ fontStyle: "italic" }}>(+1 Magic Point)</label>
               </button>
-              <button
-                onClick={() => {
-                  if (symbolChangeFocus) {
-                    setSymbolChangeFocus(null);
-                  } else {
-                    setSymbolChangeFocus(focused);
-                  }
-                }}
-                disabled={false && numberBurned < 5}
-              >
-                {symbolChangeFocus ? "Cancel" : "Change Symbol"}
-                {numberBurned < 5 && !symbolChangeFocus ? (
-                  <label style={{ fontStyle: "italic" }}>
-                    {" "}
-                    (need {5 - numberBurned} more Magic Points!)
-                  </label>
-                ) : (
-                  <> </>
-                )}
-              </button>
+              {!changing && (
+                <button
+                  onClick={() => {
+                    if (symbolChangeFocus) {
+                      setSymbolChangeFocus(null);
+                    } else {
+                      setSymbolChangeFocus(focused);
+                    }
+                  }}
+                  disabled={false && numberBurned < 5}
+                >
+                  {symbolChangeFocus ? "Cancel" : "Change Symbol"}
+                  {numberBurned < 5 && !symbolChangeFocus ? (
+                    <label style={{ fontStyle: "italic" }}>
+                      {" "}
+                      (need {5 - numberBurned} more Magic Points!)
+                    </label>
+                  ) : (
+                    <> </>
+                  )}
+                </button>
+              )}
+              {changing && <>~~~ transforming ~~~</>}
               <br />
-              {symbolChangeFocus && <SymbolChanger id={symbolChangeFocus.id} />}
+              {symbolChangeFocus && (
+                <SymbolChanger
+                  id={symbolChangeFocus.id}
+                  setDoPulse={setChanging}
+                />
+              )}
               <pre>{JSON.stringify(focused, null, 2)}</pre>
             </div>
           </>
         )}
+        {!focused && <div style={{ height: "600px" }} />}
       </>
     </div>
   );

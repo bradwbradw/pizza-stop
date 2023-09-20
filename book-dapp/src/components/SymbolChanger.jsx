@@ -4,6 +4,8 @@ import { formatEther } from "viem";
 import { _ } from "lodash";
 import { readContract, writeContract, prepareWriteContract } from "@wagmi/core";
 
+import findReasonString from "../modules/FindReasonString";
+
 import {
   useNetwork,
   useContractRead,
@@ -15,8 +17,8 @@ import {
 
 import { bookNftABI, bookNftAddress } from "../modules/Contract";
 
-export default function SymbolChanger({ id }) {
-  const [symbol, setSymbol] = useState("﷽");
+export default function SymbolChanger({ id, setDoPulse }) {
+  const [symbol, setSymbol] = useState("");
   const [errorMsg, setErrorMsg] = useState(null);
   const [symbolChangeLoading, setSymbolChangeLoading] = useState(false);
 
@@ -38,13 +40,11 @@ export default function SymbolChanger({ id }) {
       })
       .catch((err) => {
         console.error(err);
-        var reasonString = _.trim(
-          _.last(_.split(_.get(err, "details"), "reverted with reason string")),
-          " '"
-        );
+        var reasonString = findReasonString(err);
         if (reasonString) {
           setErrorMsg(reasonString);
         } else {
+          console.log("could not find reason string", err);
           setErrorMsg(err.shortMessage);
         }
       });
@@ -54,31 +54,43 @@ export default function SymbolChanger({ id }) {
     if (errorMsg) {
       return;
     }
+    setDoPulse(true);
     setSymbolChangeLoading(true);
     writeContract(symbolChangeTxParams)
       .then((result) => {
         setSymbolChangeLoading(false);
       })
       .catch((error) => {
-        setErrorMsg(error.message);
+        setDoPulse(false);
+        debugger;
+        setErrorMsg(error.shortMessage);
         setSymbolChangeLoading(false);
       });
   }
 
   return (
     <div className="symbol-changer">
-      <div>
-        <input
-          type="text"
-          placeholder="Enter new symbol"
-          maxLength={2}
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
-        />
-        <span style={{ color: "orange", padding: "0.2em" }}>
-          {errorMsg ? errorMsg : ""}
-        </span>
-      </div>
+      {!symbolChangeLoading && (
+        <div>
+          <label htmlFor="symbol editor">Paste Symbol Here:{"  "}</label>
+          <input
+            name="symbol editor"
+            type="text"
+            style={{
+              fontSize: "24px",
+              width: "3em",
+              padding: "0.2em",
+            }}
+            maxLength={2}
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+          />
+          <span style={{ color: "orange", padding: "0.2em" }}>
+            {errorMsg ? errorMsg : ""}
+            {!errorMsg && symbol.length > 0 && <>✅</>}
+          </span>
+        </div>
+      )}
       <div>
         <button
           disabled={symbolChangeLoading || !symbol || errorMsg}
