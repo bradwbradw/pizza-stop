@@ -6,9 +6,99 @@
     <title>book nft</title>
     <script type="module" src="./polyfills.ts"></script>
     <style>
+      body {
+        background: azure;
+        color: darkslategrey;
+        margin: 1.5em;
+      }
+      a {
+        font-size: larger;
+        color: blue;
+      }
+      a.nav {
+        padding: 0.3em;
+        margin: 0.3em;
+        display: inline-block;
+      }
+      a:visited {
+        color: blue;
+      }
+      a:hover {
+        color: white;
+        background: blue;
+      }
+      button {
+        margin: 0.5em;
+        max-width: 25vh;
+      }
+      .spineImage {
+        transform: scale(1);
+        transition: transform 0.5s ease-in-out;
+        z-index: 1;
+      }
       .spineImage:hover {
         transform: scale(1.1);
         transition: transform 0.5s ease-in-out;
+        z-index: 2;
+      }
+
+      .spineImage.focused {
+        transform: scale(1.1);
+        z-index: 2;
+      }
+
+      .symbol-changer {
+        border: 4px solid groove;
+        border-radius: 10px;
+      }
+      .symbol-changer button {
+        border: 4px solid groove;
+        background: gold;
+        border-radius: 10px;
+        background-color: #f0f0f0;
+        margin: 5px;
+        padding: 5px;
+      }
+      .fadeOut {
+        opacity: 0;
+        transition: opacity 2.5s ease-in-out;
+      }
+      .fadeIn {
+        animation: fadeIn 3s ease-in-out 0s 1 normal forwards running;
+      }
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .pulse {
+        background: rgb(11, 243, 181);
+        margin: 10px;
+
+        box-shadow: 0 0 0 0 rgb(241, 7, 218);
+        transform: scale(1);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+        }
+
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
       }
     </style>
   </head>
