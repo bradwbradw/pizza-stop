@@ -296,7 +296,7 @@ export function MintNFT({ userAddress }) {
             display: "flex",
             flexWrap: "wrap",
             border: "15px solid brown",
-            borderImage: "url(/images/wood.png) 30 round",
+            borderImage: "url(./images/wood.png) 30 round",
             background: "rgb(165, 95, 42)",
             marginBottom: "2em",
             minHeight: "200px",
