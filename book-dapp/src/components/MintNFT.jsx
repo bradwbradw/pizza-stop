@@ -408,7 +408,34 @@ export function MintNFT({ userAddress }) {
                   setDoPulse={setChanging}
                 />
               )}
-              <pre>{JSON.stringify(focused, null, 2)}</pre>
+              <div>
+                <label style={{ fontWeight: "bold" }}>Name:</label>{" "}
+                {focused.name}
+                <br />
+                <label style={{ fontWeight: "bold" }}>Attributes:</label> <br />
+                {_.get(focused, "attributes", []).map((attr) => {
+                  return (
+                    <>
+                      <span
+                        style={{
+                          color: attr.color,
+                          marginLeft: "0.5em",
+                        }}
+                      >
+                        {attr.trait_type}:
+                      </span>
+                      <span style={{ marginLeft: "0.5em", fontWeight: "bold" }}>
+                        {attr.value}
+                      </span>
+                      <br />
+                    </>
+                  );
+                })}
+              </div>
+              {/*}
+              <pre style={{ maxWidth: "98vw", overflow:scroll}}>
+                {JSON.stringify(_focused, null, 2)}
+              </pre>{*/}
             </div>
           </>
         )}

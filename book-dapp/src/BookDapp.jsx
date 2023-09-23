@@ -98,7 +98,7 @@ export function BookDapp() {
       <h4>
         contract address:{" "}
         <a
-          href={`https://basescan.org/address/${bookNftAddress}`}
+          href={`https://goerli.basescan.org/address/${bookNftAddress}`}
           target="_blank"
         >
           {" "}
