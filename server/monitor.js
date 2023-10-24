@@ -173,7 +173,13 @@ var jobMap = {
       console.log('stepn swap', swap);
       var usd = _.get(swap, 'pricesResponse.priceRoute.destUSD') * 1;
 
-      return _.isNumber(usd) && usd > 5.50;
+      if ( _.isNumber(usd) && usd > 5.50){
+        return true;
+      } else {
+        return {
+          message: `stepn swap usd is < 5.50: ${usd}`;
+        }
+      }
     },
     action: ({ pricesResponse }) => {
 
