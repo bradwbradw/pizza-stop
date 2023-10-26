@@ -55,7 +55,7 @@ var jobMap = {
   },
   "update-assets": {
     enabled: true,
-    interval: "55 minutes",
+    interval: "1 day",
     action: () => {
       return googleSheets
         .sheetTickers()
@@ -124,7 +124,7 @@ var jobMap = {
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
           20,
         ]),
-        "250" //_.shuffle(["43114", "137", "1284"])
+        ["250"] //_.shuffle(["43114", "137", "1284"])
       );
     },
     condition: (result) => {
