@@ -115,7 +115,7 @@ var jobMap = {
     },
   },
   xen: {
-    enabled: false,
+    enabled: true,
     interval: "2 minutes",
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
@@ -124,7 +124,7 @@ var jobMap = {
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
           20,
         ]),
-        _.shuffle(["43114", "137", "1284"])
+        "250" //_.shuffle(["43114", "137", "1284"])
       );
     },
     condition: (result) => {
@@ -137,7 +137,7 @@ var jobMap = {
     action: (result) => {
       var { chainID, address, addressIndex, maturity } = result;
 
-      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 365);
+      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 501);
       if (maturity === "0") {
         console.log("do claim ranks for ", chainID, address);
         return claimRanksFn().then(() => {
