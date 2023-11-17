@@ -9,7 +9,7 @@ var chains = require("./chains.js");
 var chainPairs = _.toPairs(chains);
 
 var preferred =
-  "xen-crypto equalizer-dex alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(
+  "wagmi-2 zeeverse xen-crypto equalizer-dex alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(
     " "
   );
 
