@@ -6,6 +6,7 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 import { publicProvider } from "wagmi/providers/public";
+import { infuraProvider } from 'wagmi/providers/infura'
 
 const walletConnectProjectId = "cbe5c80a64e44dbb62d665b0d0ed452b";
 
@@ -13,7 +14,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   //[hardhat],
   [sepolia],
   //  [base, ...(import.meta.env?.MODE === "development" ? [baseGoerli] : [])],
-  [publicProvider()]
+  [publicProvider(), infuraProvider({ apiKey: '48bef4877af34063ac44f6cacf41c36a' })]
 );
 
 export const config = createConfig({

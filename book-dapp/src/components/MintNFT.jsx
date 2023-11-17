@@ -261,7 +261,7 @@ export function MintNFT({ userAddress }) {
       >
         {isLoading
           ? "Minting..."
-          : `Mint (cost: ${mintPrice ? formatEther(mintPrice) : "..."} Eth) `}
+          : `Mint (cost: ${mintPrice ? formatEther(mintPrice)+ " Ether" : "FREE (+ gas fees)"}) `}
       </button>
       {(isPrepareError || isError) && (
         <span
