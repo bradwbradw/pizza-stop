@@ -17,7 +17,7 @@ export function BookDapp() {
     <>
       {" "}
       <h1>
-        untitled book nft mint (Base Goerli testnet minting) (under
+        untitled book nft mint (Sepolia testnet minting) (under
         construction)
       </h1>
       <a
@@ -56,11 +56,6 @@ export function BookDapp() {
             technologies and groups that work behind the scenes, such as the
             unicode consortium, the SVG standards, browser differences, font
             support and so on.
-          </p>
-          <p>
-            The project is deployed on Base in order to be able to take
-            advantage of cheap gas fees for possible future dapp interactions,
-            depending on the success of the project and funding opportunities.
           </p>
           <p>
             For important project updates, follow Blue Green crypto at{" "}
