@@ -14,7 +14,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   //[hardhat],
   [sepolia],
   //  [base, ...(import.meta.env?.MODE === "development" ? [baseGoerli] : [])],
-  [publicProvider(), infuraProvider({ apiKey: '48bef4877af34063ac44f6cacf41c36a' })]
+  [infuraProvider({ apiKey: '48bef4877af34063ac44f6cacf41c36a' })]//,publicProvider()]
 );
 
 export const config = createConfig({
