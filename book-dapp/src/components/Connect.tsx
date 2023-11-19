@@ -35,9 +35,9 @@ export function Connect() {
         {!isConnected &&
           connectors
             .filter((x) => x.ready)
-            .map((x) => (
+            .map((x, idx) => (
               <>
-                <button key={x.id} onClick={() => connect({ connector: x })}>
+                <button key={idx} onClick={() => connect({ connector: x })}>
                   {x.name}{" "}
                   {isLoading &&
                     x.id === pendingConnector?.id &&
