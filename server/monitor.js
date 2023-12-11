@@ -29,19 +29,6 @@ if (_.isString(mongoConnectionString)) {
   });
 }
 
-function getMonitorData(key) {
-  //  console.log('getMonitorData', key);
-  var obj = cache.checkPersistent("monitor-data") || {};
-  return _.get(obj, key);
-}
-
-function setMonitorData(key, value) {
-  //  console.log('setMonitorData', key, value);
-  var obj = cache.checkPersistent("monitor-data") || {};
-  _.set(obj, key, value);
-  cache.setPersistent("monitor-data", obj);
-}
-
 var jobMap = {
   "clear gecko asset keys": {
     enabled: true,
@@ -169,6 +156,7 @@ var jobMap = {
         address: process.env.BRAD_STEPN_BSC,
       };
       return balance.get(o).then((result) => {
+//        console.log("balance result", res);
         return swap.prepare({
           spendTicker: "GST-BSC",
           baseTicker: "USDC",
@@ -214,6 +202,9 @@ var jobMap = {
     },
   },
 };
+if (process.env.JOB){
+  jobMap[process.env.JOB].runThisOnly = true;
+}
 
 function delay(ms) {
   return new Promise((resolve, reject) => {
