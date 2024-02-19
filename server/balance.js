@@ -29,18 +29,18 @@ function get(o) {
     if (ticker.toUpperCase() == nativeCurrency) {
       isNativeToken = true;
       p = web3.tokenBalance(o).then(n => {
-        balanceMap[ticker] = n;
+        balanceMap[ticker] = Number(n);
         return Promise.resolve();
       });
     } else {
       //p = Promise.reject('forcing moralis');
-
+      console.log("trying gecko for", ticker, "on", o.chainID, "for", o.address, "with", o.userKey, "and", o.exchange);
       p = geckoClient.tickerContract(o.chainID, ticker)
         .then(contractAddress => {
           if (_.isString(contractAddress) && _.size(contractAddress) > 0) {
             return web3.tokenBalance(_.extend(o, { contractAddress }))
               .then(n => {
-                balanceMap[ticker] = n;
+                balanceMap[ticker] = Number(n);
                 return Promise.resolve();
               })
               .catch(err => {

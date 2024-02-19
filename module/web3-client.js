@@ -1,5 +1,5 @@
 
-var Web3 = require('web3');
+var { Web3 } = require('web3');
 var _ = require('lodash');
 var superagent = require('superagent');
 
@@ -12,8 +12,6 @@ var cache = require('./cache.js');
 var fns = require('./fns.js');
 const { chain } = require('lodash');
 const notify = require('../server/notify.js');
-
-const { GasPriceOracle } = require('gas-price-oracle');
 
 var utils = Web3.utils;
 
@@ -301,12 +299,28 @@ function estimateGasWei(chainID, speed) {
   if (_.get(gasOracles, chainID)) {
     oracle = gasOracles[chainID];
   } else {
-    gasOracles[chainID] = new GasPriceOracle({ chainId: parseInt(chainID) });
+
+    var scanClient = scan.client(''+chainID);
+    gasOracles[chainID] = {
+      scanClient,
+      gasPrices: () => {
+        return scanClient.gas();
+      }
+    }
     oracle = gasOracles[chainID];
   }
+  /*
+  eg:
+    LastBlock: '34223754',
+    SafeGasPrice: '3',
+    ProposeGasPrice: '3',
+    FastGasPrice: '3',
+    UsdPrice: '248.55'
+  */
   return oracle.gasPrices()
     .then(prices => {
-      var price = prices[speed] || prices['baseFee'];//700 for moonbeam
+      console.log("gas prices "+chainID, prices);
+      var price = prices[speed] || prices['SafeGasPrice'];//700 for moonbeam
       var gasPrice = _.round(price * (10 ** 9));
       if (!_.isNaN(gasPrice) && _.isNumber(gasPrice)) {
         console.log(`${chainID} ${speed} gas price is ${price} gWei = ${gasPrice} wei`);
@@ -437,11 +451,11 @@ function sendAttempt(web3, tx, attempt, lastError) {
   //tx.gas = web3.utils.toHex(tx.gas);
   //tx.gasPrice = web3.utils.toHex(tx.gasPrice);
   console.log("after: ", tx.gasPrice);
-  console.log(`sending transaction costing ${tx.gas} gas units, at ${tx.gasPrice} gwei per unit. attempt ${attempt}...`);
+//  console.log(`sending transaction costing ${tx.gas} gas units, at ${tx.gasPrice} gwei per unit. attempt ${attempt}...`);
   return web3.eth.signTransaction(tx)
     .then(signed => {
 
-      console.log('sending tx', tx);
+//      console.log('sending tx', tx);
       return new Promise((resolve, reject) => {
         var emitter = web3.eth.sendSignedTransaction(signed.raw)
           .once('sending', function (payload) {
@@ -457,8 +471,9 @@ function sendAttempt(web3, tx, attempt, lastError) {
             console.log('receipt ', receipt);
             console.log(`^(attempt ${attempt})`);
           })*/
-          .on('confirmation', function (confNumber, receipt, latestBlockHash) {
-            console.log(`confirmation ${confNumber} (attempt ${attempt})`);
+          .on('confirmation', function (c, receipt, latestBlockHash) {
+            console.log(`confirmation (attempt ${attempt}):`,JSON.stringify(c, null, 2));
+
 
             //console.log('emitter 22222', emitter);
             emitter.removeAllListeners();
@@ -523,6 +538,12 @@ function decimals(chainID, tickerOrAddress) {
           methodName: "decimals"
         })
           .then(decimals => {
+            console.log("got decimals", decimals);
+            // convert BigInt to number
+            //            decimalsNumber = _.toNumber(decimals);
+
+            decimals = '' + Number(decimals);//_.toNumber(decimals);
+            console.log("converted is", decimals);
             if (fns.isNumeric(decimals)) {
 
               return cache.setPersistent(key, decimals);
@@ -549,7 +570,7 @@ function tokenBalanceWork({ chainID, address, contractAddress }) {
           parameters: address
         })
           .then(balance => {
-            var n = balance / (10 ** decimals);
+            var n = Number(balance) / (10 ** decimals);
             if (_.isNumber(n) && !_.isNaN(n)) {
               //              console.log(`${address} has ${n} tokens of ${chainID} ${contractAddress}`);
               return n;
@@ -564,7 +585,7 @@ function tokenBalanceWork({ chainID, address, contractAddress }) {
     var web3 = get(chainID);
     return web3.eth.getBalance(address)
       .then(b => {
-        var n = b / (10 ** 18);
+        var n = Number(b) / (10 ** 18);
         //        console.log(`${address} has ${n} tokens of ${chainID} native token`);
         return n;
       })

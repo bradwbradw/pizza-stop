@@ -55,7 +55,7 @@ const db = require("./db.js");
 const contractBalance = require("./contract-balance.js");
 const web3 = PS.web3; //require('./web3-client.js');
 const geckoClient = PS.geckoClient; //require('./gecko-client.js');;//PS.geckoClient;//
-const chains = PS.chains; //require('./chains.js');
+const chains = require('../module/chains.js');
 const cache = PS.cache; // require('../module/cache.js');
 const transactionHistory = PS.transactionHistory; //require('../module')
 
@@ -526,6 +526,19 @@ app.get("/jobs/:jobName", (req, res) => {
       res.json({ error: "something went wrong" });
     });
 });
+/*
+var scanClient = require("../module/scan-client.js").client;
+var chainIDs = chains.all;//_.keys(chains);
+_.each(chainIDs, async (chainID) => {
+  var client = scanClient(chainID);
+  try {
+  var gasResult = await client.gas();
+  console.log(`gas result ${chainID}`, gasResult);
+  } catch (err){
+
+  }
+});
+*/
 /*
 var count = 0;
 

@@ -12,7 +12,7 @@ function client(chainID) {
     if (!scanUrl) {
       return Promise.reject('please set scan URL for ' + chainID);
     }
-    //    console.log('scan request ' + chainID, params);
+//    console.log('scan request ' + chainID, scanUrl, params);
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         superagent
@@ -22,14 +22,16 @@ function client(chainID) {
             if (params.action != 'getabi') {
               //              console.log('scan result',res.body);
             }
-            if (_.isString(_.get(res, 'body.result')) || _.isArray(_.get(res, 'body.result'))) {
+            if (_.isString(_.get(res, 'body.result')) || _.isArray(_.get(res, 'body.result')) || _.isObject(_.get(res, 'body.result'))) {
               resolve(res.body.result);
             } else {
+//              console.log(scanUrl, res.body);
               reject('result not found in scan req for chain ' + chainID, params);
             }
           })
           .catch(err => {
-            console.log(scanUrl, err.status, err.response.text);
+            //console.error(err);
+            console.log(scanUrl, err.status, _.get(err,"response.text") );
             reject('something went wrong');
           })
       }, 5000)
@@ -93,7 +95,23 @@ function client(chainID) {
           delayBetweenRequests
         );
       },
-      gas: () => { },//https://api.bscscan.com/api?module=gastracker&action=gasoracle&apikey=YourApiKeyToken
+      gas: () => {
+        //https://api.bscscan.com/api?module=gastracker&action=gasoracle&apikey=YourApiKeyToken
+        return queue.queuedTask(
+          () => {
+            return scanReq({
+              module: 'gastracker',
+              action: 'gasoracle',
+              apikey: 'YourApiKeyToken'
+            }).catch((err)=>{
+              console.log(err);
+              return Promise.resolve({fakingPass:true});
+            });
+          },
+          queueKey,
+          delayBetweenRequests
+        );
+       },
       abi: (address) => {
         return queue.queuedTask(
           () => {
