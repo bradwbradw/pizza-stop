@@ -47,6 +47,7 @@ var assetData = {
   },
   updateAll: () => {
     return Promise.all(_.map(_.keys(map), assetData.updateAndGet)).then(() => {
+      console.log("asset data update all action complete", map)
       return map;
     })
   },
