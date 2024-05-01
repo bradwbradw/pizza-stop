@@ -1,6 +1,7 @@
 
+import express from "express";
+import fs from "fs";
 import dotenv from "dotenv";
-import express from "express";const fs = await import("fs");
 import _ from "lodash";
 import PS from "./bundle.js";
 import bodyParser from "body-parser";
