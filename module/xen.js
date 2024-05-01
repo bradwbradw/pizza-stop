@@ -28,35 +28,35 @@ var gasPriceOverride = {
 //seedWallets("43114", [1,2,3,4,5,6,7, 8, 9], 0.1);//.then(() => {
 
 function harvestXen(chainID, addressArr) {
-
+  
   var p = web3.getContract(chainID, xen[chainID]);
 
   addressArr.map(addressIndex => {
     p = p.then(() => {
       //console.log(`${chainID} claimMintRewardAndShare ${addressIndex}...`);
-      return web3.send({
-        chainID,
-        contractAddress: xen[chainID],
-        mnemonic: process.env.BOT_MNEMONIC,
-        addressIndex,
-        methodName: 'claimMintRewardAndShare',
-        parameters: `${process.env.BRAD_T} 100`,
-        gasPrice: gasPriceOverride[chainID] ? gasPriceOverride[chainID] : null
-      });
+      try {
+
+        return web3.send({
+          chainID,
+          contractAddress: xen[chainID],
+          mnemonic: process.env.BOT_MNEMONIC,
+          addressIndex,
+          methodName: 'claimMintRewardAndShare',
+          parameters: `${process.env.BRAD_T} 100`,
+          gasPrice: gasPriceOverride[chainID] ? gasPriceOverride[chainID] : null
+        });
+      } catch (err) {
+        console.log("web3.send error. resolving anyway. ",err);
+        return new Promise((resolve, reject) => {
+          setTimeout(resolve, 3000);
+        });
+      }
     }).then(() => {
       console.log(`${chainID} claimMintRewardAndShare ${addressIndex} done`);
       return new Promise((resolve, reject) => {
         setTimeout(resolve, 3000);
       });
-    });/*.catch((e) => { 
-      console.log(e.message); 
-      return Promise.resolve(); 
-    }).then(() => {
-      console.log(`${chainID} claimMintRewardAndShare ${addressIndex} done`);
-      return new Promise((resolve, reject) => {
-        setTimeout(resolve, 3000);
-      });
-    })*/
+    });
   });
   return p;
   // return p.then(() => {

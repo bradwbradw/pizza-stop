@@ -1,5 +1,5 @@
 var _ = require("lodash");
-const moment = require("moment");
+
 const SwaggerClient = require("swagger-client");
 
 var queue = require("./queue.js");
@@ -257,7 +257,7 @@ function tickerContract(chainID, ticker) {
 function setup(d) {
   domain = d;
   var geckoAPILocal = `http://${domain}/gecko-swagger.json`;
-  if (false && process.env.COINGECKO_API_KEY){
+  if (process.env.COINGECKO_API_KEY){
     console.log("setting up coingecko with api key");
     GeckoApi = new SwaggerClient({
       url: geckoAPILocal,
@@ -268,15 +268,18 @@ function setup(d) {
     })
   } else {
     console.log("no coingecko api key found")
-    GeckoApi = SwaggerClient(geckoAPILocal);
+    GeckoApi = SwaggerClient(geckoAPILocal).then(()=>{
+      console.log("gecko swagger client is ready");
+    });
   }
   // configure swagger to add header X-Custom=123
   //  GeckoApi.then((g) => {
 
   GeckoApi.then(() => {
-    //    console.log("gecko api ready");
+        console.log("gecko api ready");
   }).catch((err) => {
     console.log("gecko api error " + err);
+    process.exit(1);
   });
 }
 module.exports = {

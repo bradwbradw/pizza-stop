@@ -1,4 +1,7 @@
 var _ = require("lodash");
+var dotenv = require("dotenv");
+dotenv.config();
+console.log("process.env", process.env)
 
 var chains = {
   56: {

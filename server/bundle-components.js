@@ -1,4 +1,11 @@
 
+
+
+
+
+
+
+
 module.exports = {
   'asset-balance-cex':require('../component/asset-balance-cex.js'),
   'asset-balance-manual':require('../component/asset-balance-manual.js'),

@@ -197,15 +197,16 @@ function botAddresses(arr) {
   var provider;
   var m = _.max(arr) + 1;
   try {
+    var providerOrUrl = _.get(chains, `1.http`);
     provider = new HDWalletProvider({
       mnemonic: process.env.BOT_MNEMONIC,
-      providerOrUrl: _.get(chains, `1.http`),
+      providerOrUrl,
       numberOfAddresses: m,//.length,
       //      addressIndex: i,
       shareNonce: false
     });
   } catch (err) {
-    console.log('there was an error', err);
+    console.log('there was an error with provider', providerOrUrl);
     return [];
   }
   var out = [];
@@ -392,16 +393,23 @@ function send({ chainID, contractAddress, mnemonic, addressIndex, methodName, pa
           log = `${chainID} ${provider.getAddress()} calls ${contractAddress}.${methodName}(${arr})`;
           // TODO potential gas sink if it's not verified at all ??
           var contractCall = contract.methods[methodName].apply(this, arr);
+//          console.log((gasLimit? "using passed-in gas limit: "+gasLimit:""));
+//          console.log((gasPrice? "using passed-in gas Price: "+gasPrice:""));
           p = Promise.all([
             gasLimit ? Promise.resolve(gasLimit) : contractCall.estimateGas({ from: provider.getAddress() }),
-            gasPrice ? Promise.resolve(gasPrice) : estimateGasWei(chainID, 'low')
+            gasPrice ? Promise.resolve(gasPrice) : estimateGasWei(chainID, 'low'),
+            web3.eth.getGasPrice()
           ])
-            .then(([gas, gasPrice]) => {
-              console.log("method " + methodName + " gas is ", gas + " so trying with " + (gas));
+            .then(([gas, gasPrice, blockBasePrice]) => {
+              console.log("method " + methodName + " estimated gas limit ", gas);
+              console.log("oracle gas price ", gasPrice);
+              console.log("web3.eth.getGasPrice = "+Number(blockBasePrice)/(10**9));
+
               return contractCall.send({
                 from: provider.getAddress(),
                 gas: gas,
-                gasPrice: gasPrice
+                gasPrice
+//                gasPrice: blockBasePrice
               });
             })
 

@@ -5,7 +5,7 @@
   "name": "pizza-stop",
   "version": "0.0.1",
   "description": "Visualize your crypto portfolio using a simple pizza / slice model for tracking asset values.",
-  "main": "server/start.js",
+  "main": "server/start.mjs",
   "watch": {
     "build-css": {
       "patterns": "scss",
@@ -22,7 +22,7 @@
     "test-ui": "open-cli http://localhost:3002/test.html",
     "bundle-ethereum": "browserify ethereumjs-modules.js -s EthereumJS > public/js/build/ethereum.js",
     "build-css": "node-sass --include-path scss scss/style.scss  public/style.css",
-    "start": "node server/start.js",
+    "start": "node server/start.mjs",
     "dev": "npm-watch",
     "ui": "npx browser-sync http://localhost:5678 'public' -w"
   },
@@ -36,7 +36,6 @@
     "agenda": "^5.0.0",
     "better-sqlite3": "^8.0.1",
     "body-parser": "^1.20.1",
-    "browserify": "^17.0.0",
     "ccxt": "^2.6.36",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",

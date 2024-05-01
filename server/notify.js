@@ -1,6 +1,8 @@
 var superagent = require('superagent');
 var moment = require('moment');
 var _ = require('lodash');
+var dotenv = require('dotenv');
+dotenv.config();
 
 var events = [];
 
@@ -9,6 +11,7 @@ var appID = process.env.DISCORD_APP_ID;
 var appPublicKey = process.env.DISCORD_PUBLIC_KEY;
 var blueGreenChannel = process.env.DISCORD_CHANNEL_ID;
 
+//console.log("blueGreenChannel", blueGreenChannel);
 function discordRest(method, path, data) {
 
   //    return Promise.resolve("mocking notification", data);

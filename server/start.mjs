@@ -1,46 +1,21 @@
-const fs = require("fs");
-const path = require("path");
-const _ = require("lodash");
-const moment = require("moment");
-const express = require("express");
-const bodyParser = require("body-parser");
 
-var doPublicBuild = require("./do-public-build.js");
+import dotenv from "dotenv";
+import express from "express";const fs = await import("fs");
+import _ from "lodash";
+import PS from "./bundle.js";
+import bodyParser from "body-parser";
 
-const { hashElement } = require("folder-hash");
+const __dirname = path.resolve();
 
-var componentsPath = path.resolve(__dirname, "../component");
+import path from "path";
 
-var bundlePath = path.resolve(__dirname, "./bundle.js");
-
-Promise.all([hashElement(componentsPath, {}), hashElement(bundlePath, {})])
-  .then(([cHashObj, bHashObj]) => {
-    var cHash = _.get(cHashObj, "hash", "");
-    var bHash = _.get(bHashObj, "hash", "");
-    var hash = cHash + bHash;
-    //    console.log('public files hash ', hash);
-    var oldHash = cache.checkPersistent("components-hash");
-    if (oldHash !== hash) {
-      cache.setPersistent("components-hash", hash);
-      doBuild = true;
-      console.log("will build public js");
-      doPublicBuild(componentsPath, bundlePath);
-    } else {
-      //console.log('skip building public');
-    }
-  })
-  .catch((error) => {
-    console.error("hashing failed:", error);
-  });
-
-//end build step
-
-//const btcClient = require('bitcoin-core');
+//const btcClient = await import('bitcoin-core');
 // https://www.smartbit.com.au/api
+
 
 const app = express();
 
-require("dotenv").config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 //require('dotenv').config({path: path.resolve(process.cwd(), '.env.prod')});
 
 var port = process.env.PORT || 5678;
@@ -49,38 +24,43 @@ var domain = "localhost:" + port;
 if (process.env.DOMAIN) {
   domain = process.env.DOMAIN;
 }
-const PS = require("./bundle.js");
-const db = require("./db.js");
-//const user = require('./user.js');
-const contractBalance = require("./contract-balance.js");
-const web3 = PS.web3; //require('./web3-client.js');
+
+const db = await import("./db.js");
+//const user = await import('./user.js');
+const contractBalance = await import("./contract-balance.js");
+const web3 = PS.web3; //await import('./web3-client.js');
 const geckoClient = PS.geckoClient; //require('./gecko-client.js');;//PS.geckoClient;//
-const chains = require('../module/chains.js');
-const cache = PS.cache; // require('../module/cache.js');
-const transactionHistory = PS.transactionHistory; //require('../module')
+const chains = await import('../module/chains.js');
+const cache = PS.cache; // await import('../module/cache.js');
+const transactionHistory = PS.transactionHistory; //await import('../module')
 
-const balance = require("./balance.js");
-const moralisClient = require("./moralis-client.js");
-const threeCommasClient = require("./3commas-client.js");
-const cex = require("./ccxt-proxy.js");
-const monitor = require("./monitor.js");
-const notify = require("./notify.js");
-const assetData = require("./asset-data.js");
-const HDWalletProvider = require("@truffle/hdwallet-provider");
-const googleSheets = require("./google-sheets.js");
-//const { resolveNaptr } = require('dns');
+const balance = await import("./balance.js");
+const moralisClient = await import("./moralis-client.js");
+const threeCommasClient = await import("./3commas-client.js");
+const cex = await import("./ccxt-proxy.js");
+import monitor from "./monitor.mjs";
+const notify = await import("./notify.js");
+const assetData = await import("./asset-data.js");
+const HDWalletProvider = await import("@truffle/hdwallet-provider");
+const googleSheets = await import("./google-sheets.js");
+//const { resolveNaptr } = await import('dns');
 
-_.each(
-  "gecko-swagger.json moralis-swagger.json 3commas-swagger.json".split(" "),
-  (doc) => {
+Promise.all(_.map(  "gecko-swagger.json moralis-swagger.json 3commas-swagger.json".split(" "), doc =>{
+  return new Promise((resolve, reject)=>{
+    fs.readFile(`./${doc}`, "utf8", resolve);
+  }) ;
+//  return import(`./${doc}`);
+})).then((docs) => {
+  _.each(docs, (doc) => {
     app.get(`/${doc}`, (req, res) => {
-      res.json(require(`./${doc}`));
+      res.json(doc);
     });
-  }
-);
+  });
+});
 
-geckoClient.setup(domain);
-moralisClient.setup(domain);
+//geckoClient.setup(domain);
+//moralisClient.setup(domain);
+
 //threeCommasClient.setup(domain);
 
 monitor.startSchedule();
@@ -260,8 +240,10 @@ app.get("/", (request, response) => {
     response.send(file);
   });
 });
+import PriceHistory from "./price-history.mjs";
 
-require("./price-history.js")(app);
+PriceHistory.start(app);
+
 cex.setupRoutes(app);
 
 app.get("/test-db", (req, res) => {
@@ -526,45 +508,13 @@ app.get("/jobs/:jobName", (req, res) => {
       res.json({ error: "something went wrong" });
     });
 });
-/*
-var scanClient = require("../module/scan-client.js").client;
-var chainIDs = chains.all;//_.keys(chains);
-_.each(chainIDs, async (chainID) => {
-  var client = scanClient(chainID);
-  try {
-  var gasResult = await client.gas();
-  console.log(`gas result ${chainID}`, gasResult);
-  } catch (err){
 
-  }
-});
-*/
-/*
-var count = 0;
 
-app.get('/count', (req, res) => {
-  res.json({ count: count++ });
-});
-
-*/
-
-// var xen = require('../module/xen.js');
-//seedWallets("43114", [2, 5, 7, 11, 12, 13], 0.08);//13, 14, 15, 16, 17, 18, 19, 20], 1)
-//xen.harvestXen("137", [5, 6, 7, 8, 9])
-//.then(() => xen.claimRanks("137", [1, 2, 3, 4, 5, 6, 7, 8, 9]))
-// /*.then(() => xen.harvestXen("43114", [5])//6, 7, 8, 9])//)
-//.then(() => xen.claimRanks("137", [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]))//1, 2, 3, 4, 5, 6, 7, 8, 9]))
-//.then((results) => {
-//  console.log(results);
-//   return { message: "all xen actions completed" };
-// }).catch(e => {
-//   console.log(e);
-// });*/
-
-//
+//monitor.runJobOnce("check health");
+//monitor.runJobOnce("update assets");
 //.then(() => xen.claimRanks("137", [1, 2, 3, 4, 5, 6, 7, 8, 9], 7))
 /*.then(() => */
-//xen.harvestXen("43114", [5])
+//xen.harvestXen("43114", [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
 /*
 xen.claimRanks("1284", [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 14)
   .then(() => {

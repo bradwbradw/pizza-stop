@@ -1,18 +1,20 @@
-var balance = require("./balance.js");
-var assetData = require("./asset-data");
-var notify = require("./notify.js");
-var googleSheets = require("./google-sheets.js");
+var balance = await import("./balance.js");
+var assetData = await import("./asset-data.js");
+var notify = await import("./notify.js");
+var googleSheets = await import("./google-sheets.js");
 
-var geckoClient = require("../module/gecko-client.js");
-var web3 = require("../module/web3-client");
-var chains = require("../module/chains.js");
-var swap = require("../module/swap.js");
-var cache = require("../module/cache.js");
-var xen = require("../module/xen.js");
+var scanClient = (await import("../module/scan-client.js")).client;
 
-var _ = require("lodash");
-var moment = require("moment");
-var Agenda = require("agenda");
+var geckoClient = await import("../module/gecko-client.js");
+var web3 = await import("../module/web3-client.js");
+var chains = await import("../module/chains.js");
+var swap = await import("../module/swap.js");
+var cache = await import("../module/cache.js");
+var xen = await import("../module/xen.js");
+
+import _ from "lodash";
+import moment from "moment";
+import Agenda from "agenda";
 
 var userKey = process.env.SECRET;
 
@@ -30,6 +32,25 @@ if (_.isString(mongoConnectionString)) {
 }
 
 var jobMap = {
+  "check health":{
+    enabled: true,
+    interval: "1 day",
+    fetch: () => {
+
+      var chainIDs = chains.all;//_.keys(chains);
+      _.each(chainIDs, async (chainID) => {
+        var client = scanClient(chainID);
+        try {
+        var gasResult = await client.gas();
+        console.log(`gas result ${chainID}`, gasResult);
+        } catch (err){
+
+        }
+        notify.notify(`checked health on chain ${chainID} (${chains[chainId].name}). gas: `, gasResult);
+      });
+      return Promise.resolve();
+    },
+  },
   "clear gecko asset keys": {
     enabled: true,
     interval: "1 week",
@@ -40,9 +61,9 @@ var jobMap = {
       };
     },
   },
-  "update-assets": {
+  "update assets": {
     enabled: true,
-    interval: "1 day",
+    interval: "5 days",
     action: () => {
       return googleSheets
         .sheetTickers()
@@ -52,23 +73,6 @@ var jobMap = {
     },
     condition: null,
     //    action: null
-  },
-  "check usdt": {
-    enabled: false,
-    interval: "24 hours",
-    fetch: () =>
-      balance
-        .cexGet({
-          exchange: "kucoin",
-          ticker: "usdt",
-          balanceType: "free",
-          userKey,
-        })
-        .then((result) => {
-          return {
-            message: `${moment().format()} kucoin usdt balance is ${result}`,
-          };
-        }),
   },
   dca: {
     enabled: false,
@@ -103,7 +107,7 @@ var jobMap = {
   },
   xen: {
     enabled: true,
-    interval: "1 week",
+    interval: "1 day",
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
       return xen.xenCheck(
@@ -111,8 +115,8 @@ var jobMap = {
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
           20,
         ]),
-        ["250"] //_.shuffle(["43114", "137", "1284"])
-      );
+        _.shuffle(["43114", "137", "1284"])
+);
     },
     condition: (result) => {
       if (_.isObject(result) && result.chainID && result.address) {
@@ -124,7 +128,7 @@ var jobMap = {
     action: (result) => {
       var { chainID, address, addressIndex, maturity } = result;
 
-      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 501);
+      var claimRanksFn = () => xen.claimRanks(chainID, [addressIndex], 365);
       if (maturity === "0") {
         console.log("do claim ranks for ", chainID, address);
         return claimRanksFn().then(() => {
@@ -147,7 +151,7 @@ var jobMap = {
     },
   },
   stepn: {
-    enabled: true,
+    enabled: false,
     interval: "28 minutes",
     fetch: () => {
       var o = {
@@ -317,7 +321,6 @@ function job(name, check) {
 }
 
 function startSchedule() {
-  interval = {};
 
   //dev aid
   var focused = _.pickBy(jobMap, (check, name) => _.get(check, "runThisOnly"));
@@ -336,6 +339,7 @@ function startSchedule() {
       var goodChecks = _.pickBy(jobMap, "enabled");
       return Promise.all(
         _.map(goodChecks, (check, name) => {
+          
           console.log("defining check ", name);
           agenda.define(name, () => {
             console.log("JOB START", name);
@@ -362,7 +366,7 @@ function runJobOnce(name) {
   }
 }
 
-module.exports = {
+export default {
   startSchedule,
   runJobOnce,
 };
