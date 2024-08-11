@@ -6,8 +6,6 @@ import _ from "lodash";
 import PS from "./bundle.js";
 import bodyParser from "body-parser";
 
-const __dirname = path.resolve();
-
 import path from "path";
 
 //const btcClient = await import('bitcoin-core');
@@ -26,27 +24,22 @@ if (process.env.DOMAIN) {
   domain = process.env.DOMAIN;
 }
 
-const db = await import("./db.js");
 //const user = await import('./user.js');
 const contractBalance = await import("./contract-balance.js");
 const web3 = PS.web3; //await import('./web3-client.js');
-const geckoClient = PS.geckoClient; //require('./gecko-client.js');;//PS.geckoClient;//
 const chains = await import('../module/chains.js');
-const cache = PS.cache; // await import('../module/cache.js');
 const transactionHistory = PS.transactionHistory; //await import('../module')
 
 const balance = await import("./balance.js");
-const moralisClient = await import("./moralis-client.js");
-const threeCommasClient = await import("./3commas-client.js");
 const cex = await import("./ccxt-proxy.js");
 import monitor from "./monitor.mjs";
 const notify = await import("./notify.js");
 const assetData = await import("./asset-data.js");
 const HDWalletProvider = await import("@truffle/hdwallet-provider");
-const googleSheets = await import("./google-sheets.js");
+//const googleSheets = await import("./google-sheets.js");
 //const { resolveNaptr } = await import('dns');
 
-Promise.all(_.map(  "gecko-swagger.json moralis-swagger.json 3commas-swagger.json".split(" "), doc =>{
+Promise.all(_.map("gecko-swagger.json".split(" "), doc =>{
   return new Promise((resolve, reject)=>{
     fs.readFile(`./${doc}`, "utf8", resolve);
   }) ;
@@ -69,8 +62,6 @@ monitor.startSchedule();
 //const coin = require('./coin-data.js');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(express.static("public"));
-app.use(express.static("component"));
 
 // setup static route for /book-dapp, mapped to /book-dapp/dist
 app.use("/book-dapp", express.static("book-dapp/dist"));
@@ -233,63 +224,6 @@ function qEmpty() {
   return _.size(q) == 0;
 }
 
-app.get("/", (request, response) => {
-  //response.send("boogie");
-  fs.readFile(`${__dirname}/public/index.html`, "utf8", (err, file) => {
-    if (err) throw err;
-    //      console.log(data);
-    response.send(file);
-  });
-});
-import PriceHistory from "./price-history.mjs";
-
-PriceHistory.start(app);
-
-cex.setupRoutes(app);
-
-app.get("/test-db", (req, res) => {
-  try {
-    console.log("setting up db");
-    var dolphinCoinPrices = db({ currency: "Dolph", quoteCurrency: "USD" });
-    console.log("trying to set and get from db");
-    dolphinCoinPrices
-      .then((db) => {
-        console.log("upsert");
-        db.upsert([
-          { millis: 12345, price: 3.320000001 },
-          { millis: 12346, price: 3.3300010001 },
-          { millis: 12347, price: 3.334000091 },
-        ])
-          .then(() => {
-            return db.upsert([
-              { millis: 12346, price: 3.3401010101 },
-              { millis: 12348, price: 4.101010001 },
-            ]);
-          })
-          .then(() => {
-            console.log("get");
-            return db.get(12346);
-          })
-          .then(() => {
-            console.log("getRange");
-            return db.getRange(12300, 12400);
-          })
-          .then((result) => {
-            console.log(nice(result));
-            res.json({ result });
-          })
-          .catch((err) => {
-            res.json({ error: err });
-          });
-      })
-      .catch((err) => {
-        res.json({ bigError: err });
-      });
-  } catch (error) {
-    console.error(error);
-    res.json({ error: "something went wrong" });
-  }
-});
 
 var listener = app.listen(port, () => {
   console.log(`listening on port ${listener.address().port}`);
@@ -298,49 +232,6 @@ var listener = app.listen(port, () => {
 app.get("/test-notify", (req, res) => {
   notify.test();
   res.json({ tested: true, events: notify.getEvents() });
-});
-app.get("/portfolio/:key/:sinceDateGMT", (req, res) => {
-  if (
-    !_.isEmpty(req.params.key) &&
-    _.isString(req.params.key) &&
-    !_.isEmpty(req.params.sinceDateGMT) &&
-    _.isString(req.params.sinceDateGMT)
-  ) {
-    cex
-      .portfolio(req.params)
-      /*.then(sorted => {
-  
-        var output = "";
-        function append(s) {
-          if (!s) { s = ""; }
-          console.log(s);
-          output = output + "<br/>" + s;
-        }
-        _.each(sorted, s => {
-  
-  
-          append(`total bought ${s.buyAmount} ${s.ticker} for ${s.buyCost}, avg buy price is ${s.buyAvg}`);
-          append(`total sold ${s.sellAmount} ${s.ticker} for ${s.sellCost}`);
-          append(`current balance of ${s.ticker} is ${s.buyAmount - s.sellAmount}`);
-          append(`~~~~~~~~ ${s.ticker} ($${s.price}) if sell, get ${s.value} making ${s.profit} profit`);
-          append();
-          append();
-        });
-        return output;
-      })*/
-      .then((r) => {
-        res.send(r);
-      })
-      .catch((e) => {
-        console.error(e);
-        res.status(444).json(e);
-      });
-  } else {
-    res.status(444).json({
-      error:
-        "/portfolio/:key/:date with date in GMT time (YYYY-MM-DDThh:mm:ssZ)",
-    });
-  }
 });
 
 app.get("/batch", (req, res) => {
@@ -434,43 +325,6 @@ function seedWallets(chainID, addressArr, number) {
     });
 }
 
-function donkeys() {
-  var P = Promise.resolve({});
-
-  var donks = cache.checkPersistent("donkeys");
-  var begin = 0;
-  var end = 9000;
-  if (donks) {
-    begin = _.maxBy(_.keys(donks), _.parseInt);
-  }
-  _.each(_.range(begin, end), (n) => {
-    P = P.then((map) => {
-      return web3
-        .callContractMethod({
-          chainID: "42161",
-          contractAddress: "0x27f970F2164195Cf898AA03619e2783ffAdE8513",
-          methodName: "isBarnClaimedForToken",
-          parameters: "" + n,
-        })
-        .then((result) => {
-          var d = cache.checkPersistent("donkeys");
-          if (!d) {
-            d = {};
-          }
-          cache.setPersistent("donkeys", _.set(d, n, result));
-          return _.set(map, n, result);
-        })
-        .catch((err) => {
-          console.error("dnokeys broken", err);
-        });
-    });
-  });
-
-  P.then((m) => {
-    console.log("got donkeys: ");
-  });
-}
-
 app.get("/history", (req, res) => {
   var o = populateParams(req, "address numTransactions");
   transactionHistory
@@ -479,23 +333,8 @@ app.get("/history", (req, res) => {
     .catch((r) => req.json({ errors: "occurred" }));
 });
 
-app.get("/donkeys", (req, res) => {
-  var d = cache.checkPersistent("donkeys");
-  if (_.isObject(d)) {
-    res.json(d);
-  } else {
-    res.json({
-      error: "sorry, no donkeys",
-    });
-  }
-});
 
 //monitor.runJobOnce("update asset data");
-
-app.get("/rescan-donkeys", (req, res) => {
-  donkeys();
-  res.json({ rescanning: true });
-});
 
 app.get("/jobs/:jobName", (req, res) => {
   console.log(req.params);

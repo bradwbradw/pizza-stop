@@ -1,7 +1,6 @@
 
 var { Web3 } = require('web3');
 var _ = require('lodash');
-var superagent = require('superagent');
 
 const { setupLoader } = require('@openzeppelin/contract-loader');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
@@ -10,7 +9,6 @@ var scan = require('./scan-client.js');
 var chains = require('./chains.js');
 var cache = require('./cache.js');
 var fns = require('./fns.js');
-const { chain } = require('lodash');
 const notify = require('../server/notify.js');
 
 var utils = Web3.utils;
