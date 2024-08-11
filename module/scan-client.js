@@ -1,9 +1,10 @@
 
-var superagent = require('superagent');
-var _ = require('lodash');
-var chains = require('./chains.js');
-var queue = require('./queue.js');
-var fns = require('./fns.js');
+import superagent from "superagent";
+import _ from "lodash";
+import chains from "./chains.js";
+import queue from "./queue.js";
+import fns from "./fns.js";
+
 
 function client(chainID) {
 
@@ -132,7 +133,6 @@ function client(chainID) {
 }
 
 
-
-module.exports = {
+export default {
   client
 }

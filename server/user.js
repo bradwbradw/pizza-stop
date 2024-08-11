@@ -4,7 +4,7 @@ const _ = require('lodash');
 const moment = require('moment');
 const ccxt = require ('ccxt');
 
-module.exports = ({apiKey}) => {
+export default ({apiKey}) => {
 
   if (apiKey == process.env.SECRET){
     return Promise.resolve(user());

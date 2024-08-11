@@ -1,15 +1,14 @@
 
-var { Web3 } = require('web3');
-var _ = require('lodash');
+import { Web3 } from 'web3';
+import _ from 'lodash';
+import { setupLoader } from '@openzeppelin/contract-loader';
+import HDWalletProvider from '@truffle/hdwallet-provider';
+import scan from './scan-client.js';
+import chains from './chains.js';
+import cache from './cache.js';
+import fns from './fns.js';
+import notify from '../server/notify.js';
 
-const { setupLoader } = require('@openzeppelin/contract-loader');
-const HDWalletProvider = require('@truffle/hdwallet-provider');
-
-var scan = require('./scan-client.js');
-var chains = require('./chains.js');
-var cache = require('./cache.js');
-var fns = require('./fns.js');
-const notify = require('../server/notify.js');
 
 var utils = Web3.utils;
 
@@ -784,7 +783,7 @@ var customABIs = {
 
 
 
-module.exports = {
+export default {
   callContractMethod,
   sendNativeTokens,
   send,

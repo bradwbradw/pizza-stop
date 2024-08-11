@@ -3,7 +3,6 @@ import express from "express";
 import fs from "fs";
 import dotenv from "dotenv";
 import _ from "lodash";
-import PS from "./bundle.js";
 import bodyParser from "body-parser";
 
 import path from "path";
@@ -25,13 +24,10 @@ if (process.env.DOMAIN) {
 }
 
 //const user = await import('./user.js');
-const contractBalance = await import("./contract-balance.js");
-const web3 = PS.web3; //await import('./web3-client.js');
+const web3 = await import('../module/web3-client.js');
 const chains = await import('../module/chains.js');
-const transactionHistory = PS.transactionHistory; //await import('../module')
 
 const balance = await import("./balance.js");
-const cex = await import("./ccxt-proxy.js");
 import monitor from "./monitor.mjs";
 const notify = await import("./notify.js");
 const assetData = await import("./asset-data.js");
@@ -109,21 +105,6 @@ app.get("/asset/:ticker", assetHandler);
 app.get("/asset", assetHandler);
 app.get("/price", assetHandler);
 
-app.get("/contract-balance", (req, res) => {
-  var o = populateParams(
-    req,
-    "chainID contractAddress address assets lpTokenContract targetAsset"
-  );
-  contractBalance
-    .get(o)
-    .then((d) => {
-      res.json(_.extend(o, d));
-    })
-    .catch((err) => {
-      res.status(500).json({ error: err });
-    });
-});
-
 app.get("/read-contract", (req, res) => {
   var o = populateParams(
     req,
@@ -199,25 +180,6 @@ app.get("/balance", (req, res) => {
       console.error("error? " + err);
       res.status(500).json({ err });
     });
-});
-
-app.get("/balance/:exchange/:ticker", (req, res) => {
-  if (_.isString(req.query.userKey)) {
-    var o = {
-      exchange: req.params.exchange,
-      ticker: req.params.ticker,
-      userKey: req.query.userKey,
-    };
-    balance
-      .cexGet(o)
-      .then((b) => {
-        res.json(_.extend(o, { balance: b }));
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(400).json({ error: "something went wrong" });
-      });
-  }
 });
 
 function qEmpty() {
@@ -324,14 +286,6 @@ function seedWallets(chainID, addressArr, number) {
       console.log("well an error happened ", err.message);
     });
 }
-
-app.get("/history", (req, res) => {
-  var o = populateParams(req, "address numTransactions");
-  transactionHistory
-    .addressDeposits(o)
-    .then((r) => res.json(r))
-    .catch((r) => req.json({ errors: "occurred" }));
-});
 
 
 //monitor.runJobOnce("update asset data");

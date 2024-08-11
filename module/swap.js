@@ -1,14 +1,11 @@
 
-var _ = require('lodash');
-var superagent = require('superagent');
-var moment = require('moment');
+import _ from "lodash";
+import superagent from "superagent";
+import moment from "moment";
 
-
-var scan = require('./scan-client.js');
-var geckoClient = require('./gecko-client.js');
-var chains = require('./chains.js');
-var web3 = require('./web3-client.js');
-var notify = require('../server/notify.js');
+import geckoClient from "./gecko-client.mjs";
+import web3 from "./web3-client.js";
+import notify from "../server/notify.js";
 
 // USD stables
 function prepare({ spendTicker, srcToken, spendAmount, baseTicker, destToken, chainID }) {
@@ -243,7 +240,7 @@ function lookup(chainID, fromContract, toContract, amount) {
 
 
 
-module.exports = {
+export default {
   lookup,
   execute,
   prepare

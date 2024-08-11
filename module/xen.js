@@ -1,11 +1,9 @@
 
-const web3 = require('./web3-client.js');
-const chains = require('./chains.js');
-const _ = require('lodash');
-const moment = require('moment');
+import web3 from './web3-client.js';
+import _ from 'lodash';
+import moment from 'moment';
 
-const HDWalletProvider = require('@truffle/hdwallet-provider');
-const balance = require('../server/balance.js');
+import balance from '../server/balance.js';
 
 var xen = {
   "1": "0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8",
@@ -159,7 +157,7 @@ function xenCheck(addressIndeces, chainIDs) {
 
 }
 
-module.exports = {
+export default {
   claimRanks,
   harvestXen,
   xenCheck

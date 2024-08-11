@@ -1,7 +1,6 @@
-var _ = require('lodash');
-var moment = require('moment');
-
-var localStorage = require('../shim/local-storage.js');
+import _ from "lodash";
+import moment from "moment";
+import localStorage from "../shim/local-storage.js";
 
 var cache_duration = 10; //minutes
 
@@ -71,7 +70,7 @@ function clearPersistent(key) {
   localStorage.setItem(key, null);
 }
 
-module.exports = {
+export default {
   check,
   set,
   checkPersistent,

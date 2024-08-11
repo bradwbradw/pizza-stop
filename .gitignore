@@ -110,5 +110,4 @@ typings/
 .env
 local-storage
 
-public/js/build/bundle-components.js
 public/js/build/bundle.js

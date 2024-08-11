@@ -1,11 +1,13 @@
-var balance = await import("./balance.js");
-var assetData = await import("./asset-data.js");
-var notify = await import("./notify.js");
-var googleSheets = await import("./google-sheets.js");
 
-var scanClient = (await import("../module/scan-client.js")).client;
+import assetData from "./asset-data.js";
 
-var geckoClient = await import("../module/gecko-client.js");
+import notify from "./notify.js";
+import googleSheets from "./google-sheets.js";
+import client from "../module/scan-client.js";
+
+//var scanClient = (await import("../module/scan-client.js")).client;
+
+var geckoClient = await import("../module/gecko-client.mjs");
 var web3 = await import("../module/web3-client.js");
 var chains = await import("../module/chains.js");
 var swap = await import("../module/swap.js");
@@ -63,11 +65,17 @@ var jobMap = {
   },
   "update assets": {
     enabled: true,
-    interval: "5 days",
+    interval: "1 hour",
     action: () => {
-      return googleSheets
-        .sheetTickers()
-        .then(assetData.addTickers)
+      var p = googleSheets
+        .sheetTickers();
+      return p
+        .then(t=>{
+          console.log("sheet tickers", t);
+          assetData.addTickers(t);
+      }).catch(e =>{
+
+      })
         .then(assetData.updateAll)
         .then(googleSheets.printPrices);
     },
@@ -106,8 +114,8 @@ var jobMap = {
     },
   },
   xen: {
-    enabled: true,
-    interval: "1 day",
+    enabled: false,
+    interval: "2 minutes",
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
       return xen.xenCheck(
@@ -149,63 +157,9 @@ var jobMap = {
           });
       }
     },
-  },
-  stepn: {
-    enabled: false,
-    interval: "28 minutes",
-    fetch: () => {
-      var o = {
-        tickers: ["GST-BSC"],
-        chainID: "56", //bscChainID(),
-        address: process.env.BRAD_STEPN_BSC,
-      };
-      return balance.get(o).then((result) => {
-//        console.log("balance result", res);
-        return swap.prepare({
-          spendTicker: "GST-BSC",
-          baseTicker: "USDC",
-          spendAmount: _.get(result, "balance.GST-BSC", 0),
-          chainID: "56",
-        });
-      });
-    },
-    condition: (swap) => {
-      console.log("stepn swap", swap);
-      var usd = _.get(swap, "pricesResponse.priceRoute.destUSD") * 1;
-
-      if (_.isNumber(usd) && usd > 5.5) {
-        return true;
-      } else {
-        return {
-          message: `stepn swap usd is < 5.50: ${usd}`,
-        };
-      }
-    },
-    action: ({ pricesResponse }) => {
-      return swap.execute(
-        pricesResponse,
-        process.env.BRAD_STEPN_BSC,
-        process.env.BRAD_STEPN_MNEMONIC,
-        process.env.BRAD_T,
-        8
-      );
-    },
-    failMessage: (result) => {
-      var msg = "error during GST sell";
-      var o = {
-        msg,
-      };
-      _.extend(o, {
-        result,
-      });
-      try {
-        return JSON.stringify(o, null, 2);
-      } catch (err) {
-        return msg;
-      }
-    },
-  },
+  }
 };
+
 if (process.env.JOB){
   jobMap[process.env.JOB].runThisOnly = true;
 }

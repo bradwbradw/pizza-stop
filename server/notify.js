@@ -1,7 +1,9 @@
-var superagent = require('superagent');
-var moment = require('moment');
-var _ = require('lodash');
-var dotenv = require('dotenv');
+import dotenv from "dotenv";
+import superagent from "superagent";
+import moment from "moment"
+import _ from "lodash";
+
+
 dotenv.config();
 
 var events = [];
@@ -24,7 +26,7 @@ function discordRest(method, path, data) {
       console.error(err)
     })
 }
-function notify(content, context) {
+function doNotify(content, context) {
 
   var e = {
     timestamp: moment(),
@@ -56,8 +58,8 @@ function msgHistory() {
     })
 }
 
-module.exports = {
-  notify,
+export default {
+  notify:doNotify,
   getEvents: () => events,
-  test: () => notify('testing notifier')
+  test: () => doNotify('testing notifier')
 };

@@ -1,8 +1,6 @@
 
-var _ = require('lodash');
-const moment = require('moment');
 
-var chains = require('./chains.js');
+import _ from "lodash";
 
 var queueMap ={
   'gecko':[]
@@ -62,6 +60,5 @@ function queuedTask(promiseReturningWorkFn, queueKey, timeout){
 
 }
 
-module.exports = {
-  queuedTask
-}
+
+export default {queuedTask};

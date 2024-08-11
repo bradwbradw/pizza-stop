@@ -1,5 +1,6 @@
-var Auth = require('@googleapis/oauth2');
-var _ = require('lodash');
+
+import Auth from '@googleapis/oauth2';
+import _ from 'lodash';
 /*
 var {
   SecretManagerServiceClient
@@ -26,7 +27,7 @@ function get() {
 
 var getting;
 
-module.exports = {
+export default {
   get: () => {
     if (client) {
       return Promise.resolve(client);

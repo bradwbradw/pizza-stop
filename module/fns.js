@@ -1,7 +1,6 @@
-var _ = require('lodash');
-
-var cache = require('./cache.js');
-var geckoClient = require('./gecko-client.js');
+import _ from "lodash";
+import cache from "./cache.js";
+import geckoClient from "./gecko-client.mjs";
 
 var fns = {
   contract:(chainID,ticker) =>{
@@ -104,4 +103,4 @@ var fns = {
   }
 };
 
-module.exports = fns;
+export default fns;

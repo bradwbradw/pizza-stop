@@ -1,6 +1,10 @@
-var _ = require('lodash');
-var gecko = require('../module/gecko-client.js');
-var cache = require('../module/cache');
+
+import gecko from '../module/gecko-client.mjs';
+import cache from '../module/cache.js';
+import _ from 'lodash';
+//var _ = require('lodash');
+//var gecko = require('../module/gecko-client.js');
+//var cache = require('../module/cache');
 
 var mapKey = 'asset-data-map';
 
@@ -23,6 +27,7 @@ var assetData = {
     return gecko.asset(ticker)
       .then(data => {
         var price = _.get(data, 'price.usd');
+        console.log(`${ticker} ${price}`)
         if (_.isNumber(price)) {
           _.set(map, _.toLower(ticker), price);
           persistMap();
@@ -46,6 +51,7 @@ var assetData = {
     }
   },
   updateAll: () => {
+    console.log("updateAll")
     return Promise.all(_.map(_.keys(map), assetData.updateAndGet)).then(() => {
       console.log("asset data update all action complete", map)
       return map;
@@ -73,4 +79,4 @@ var assetData = {
 
 }
 
-module.exports = assetData;
+export default assetData;

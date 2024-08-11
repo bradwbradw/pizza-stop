@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "description": "Visualize your crypto portfolio using a simple pizza / slice model for tracking asset values.",
   "main": "server/start.mjs",
+  "type": "module",
   "watch": {
     "build-css": {
       "patterns": "scss",
@@ -43,7 +44,7 @@
     "web3": "^4.3.0"
   },
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "repository": {
     "url": "https://glitch.com/edit/#!/hello-sqlite"

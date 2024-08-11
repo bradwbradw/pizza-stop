@@ -1,7 +1,8 @@
-var _ = require("lodash");
-var dotenv = require("dotenv");
+import _ from "lodash";
+import dotenv from "dotenv";
+
 dotenv.config();
-console.log("process.env", process.env)
+//console.log("process.env", process.env)
 
 var chains = {
   56: {
@@ -79,7 +80,7 @@ var chains = {
 
 chains.all = _.keys(chains);
 
-module.exports = chains;
+export default chains;
 
 /*
 

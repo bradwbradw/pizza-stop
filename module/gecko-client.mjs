@@ -1,10 +1,19 @@
-var _ = require("lodash");
 
-const SwaggerClient = require("swagger-client");
+import _ from "lodash";
+import SwaggerClient from "swagger-client";
 
-var queue = require("./queue.js");
-var cache = require("./cache.js");
-var chains = require("./chains.js");
+import geckoSwagger from "./gecko-swagger.json" assert { type: "json" };
+//var _ = require("lodash");
+
+//const SwaggerClient = require("swagger-client");
+
+import queue from "./queue.js"
+import cache from "./cache.js"
+import chains from "./chains.js"
+
+//var queue = require("./queue.js");
+//var cache = require("./cache.js");
+//var chains = require("./chains.js");
 
 var chainPairs = _.toPairs(chains);
 
@@ -20,6 +29,45 @@ var fields =
 
 var GeckoApi;
 
+
+var domain = process.env.DOMAIN || "localhost:5678";
+if (process.env.COINGECKO_API_KEY) {
+  console.log("setting up coingecko with api key");
+  GeckoApi = new SwaggerClient({
+    spec: geckoSwagger,
+    requestInterceptor: (req) => {
+      req.headers["x-cg-pro-api-key"] = process.env.COINGECKO_API_KEY;
+      return req;
+    },
+  })
+} else {
+  console.log("no coingecko api key found")
+  GeckoApi = new SwaggerClient({ spec: geckoSwagger })
+    .then((client) => {
+      if (!client) {
+        console.error("Failed to initialize GeckoApi: SwaggerClient returned undefined");
+        return Promise.reject("SwaggerClient returned undefined");
+      }
+
+      console.log("gecko swagger client is ready");
+      return client;
+    })
+    .catch((err) => {
+      console.error("Error initializing GeckoApi:", err);
+      return Promise.reject(err);
+    });
+}
+// configure swagger to add header X-Custom=123
+//  GeckoApi.then((g) => {
+/*
+GeckoApi.then(() => {
+  console.log("gecko api ready");
+}).catch((err) => {
+  console.log("gecko api error " + err);
+  process.exit(1);
+});
+*/
+
 var geckoCoins;
 
 const GECKO_MAX_CALLS_PER_MINUTE = 5;
@@ -34,16 +82,19 @@ if (_.isEmpty(geckoCoins)) {
   geckoCoins = [];
 }
 console.log("gecko coins count: ", _.size(geckoCoins));
+
+// TODO convert to promise. fetch market cap and select largest
+
 function geckoIDFromTicker(ticker) {
   var list = _.get(geckoCoins, ticker, []);
   var id = _.first(list);
   _.each(list, (idCandidate) => {
-    //    console.log('id candidate', idCandidate);
     if (_.includes(preferred, idCandidate)) {
       id = idCandidate;
     }
   });
-  console.log(`selected gecko api id ${id} for ticker ${ticker}`);
+  console.log(`${ticker} selected ${id}`);
+  console.log(`other options were:`,list)
   return id;
 }
 function aGoodId(id) {
@@ -68,7 +119,8 @@ function getGeckoCoins() {
       });
     }).then((coins) => {
       console.log(`persisting ${_.size(coins)} gecko coins in map`);
-      return cache.setPersistent(geckoCacheKey, coins);
+      geckoCoins = cache.setPersistent(geckoCacheKey, coins);
+      return geckoCoins;
     });
   } else {
     return Promise.resolve(geckoCoins);
@@ -83,6 +135,7 @@ function doGeckoRequest({ ticker, chainID }) {
       //console.log("gecko api: get "+id+"...");
       return GeckoApi.then((g) => {
         return new Promise((resolve, reject) => {
+
           g.apis.coins
             .get_coins__id_({ id })
             .then(resolve)
@@ -146,10 +199,10 @@ function tickerFromContract(chainID, address) {
 
 // interval calculated from GECKO_MAX_CALLS_PER_MINUTE
 
-var geckoTimeout = 60*1000 / GECKO_MAX_CALLS_PER_MINUTE;
+var geckoTimeout = 60 * 1000 / GECKO_MAX_CALLS_PER_MINUTE;
 // Gecko free API has a rate limit of 10-50 calls per minute
 // min 1200, max 6000 ms
-function crosschainPrice(ticker) {}
+function crosschainPrice(ticker) { }
 
 function asset(ticker, chainID) {
   return queue.queuedTask(
@@ -254,37 +307,9 @@ function tickerContract(chainID, ticker) {
   }
 }
 
-function setup(d) {
-  domain = d;
-  var geckoAPILocal = `http://${domain}/gecko-swagger.json`;
-  if (process.env.COINGECKO_API_KEY){
-    console.log("setting up coingecko with api key");
-    GeckoApi = new SwaggerClient({
-      url: geckoAPILocal,
-      requestInterceptor: (req) => {
-        req.headers["x-cg-pro-api-key"] = process.env.COINGECKO_API_KEY;
-        return req;
-      },
-    })
-  } else {
-    console.log("no coingecko api key found")
-    GeckoApi = SwaggerClient(geckoAPILocal).then(()=>{
-      console.log("gecko swagger client is ready");
-    });
-  }
-  // configure swagger to add header X-Custom=123
-  //  GeckoApi.then((g) => {
-
-  GeckoApi.then(() => {
-        console.log("gecko api ready");
-  }).catch((err) => {
-    console.log("gecko api error " + err);
-    process.exit(1);
-  });
-}
-module.exports = {
+export default {
   asset,
   tickerContract,
   tickerFromContract,
-  setup,
+  //  setup,
 };

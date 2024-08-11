@@ -1,7 +1,8 @@
-var google = require('@googleapis/sheets');
+import google from '@googleapis/sheets'
 
-var _ = require('lodash');
-var googleAuth = require('./google-auth.js');
+import _ from "lodash";
+import googleAuth from "./google-auth.js";
+
 
 var pricesSheetID = process.env.PRICES_SHEET_ID;//'';//hotdog
 
@@ -95,13 +96,15 @@ function sheetTickers() {
           !_.isEmpty(row[0])
         );
       });
-      console.log('google sheets', clean);
-      return _.keys((_.fromPairs(clean)));
+      console.log('google sheets clean ', clean);
+      var cc = _.keys((_.fromPairs(clean)));
+      console.log('google sheets tick',cc);
+      return Promise.resolve(cc);
     })
 }
 
 
-module.exports = {
+export default {
   printPrices,
   sheetTickers
 };
