@@ -19,7 +19,7 @@ function check(key) {
       return null;
     }
   } else {
-    console.log(key + " not in cache");
+//    console.log(key + " not in cache");
     return null;
   }
 }

@@ -96,9 +96,7 @@ function sheetTickers() {
           !_.isEmpty(row[0])
         );
       });
-      console.log('google sheets clean ', clean);
       var cc = _.keys((_.fromPairs(clean)));
-      console.log('google sheets tick',cc);
       return Promise.resolve(cc);
     })
 }

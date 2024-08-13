@@ -16,7 +16,7 @@ if (_.isEmpty(map)) {
 console.log('initial map', map);
 function persistMap() {
   cache.setPersistent(mapKey, map);
-  console.log('persisted', _.size(map));
+  //console.log('persisted', _.size(map));
   //console.log('persisted', map);
 }
 var assetData = {

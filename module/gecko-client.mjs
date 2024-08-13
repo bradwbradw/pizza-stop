@@ -18,7 +18,7 @@ import chains from "./chains.js"
 var chainPairs = _.toPairs(chains);
 
 var preferred =
-  "harrypotterobamasonic10in wagmi-2 zeeverse xen-crypto equalizer-dex alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(
+  "bitcoin ethereum tether curve-dao-token shiba-inu harrypotterobamasonic10in wagmi-2 zeeverse xen-crypto equalizer-dex alethea-artificial-liquid-intelligence-token bird-money solidlydex magic usd-coin gmx metaland-gameverse stepn thorchain jade-protocol pancakeswap-token the-sandbox ufo-gaming monavale harmony wonderland ice-token binancecoin spookyswap gitcoin qi-dao mimatic".split(
     " "
   );
 
@@ -207,7 +207,7 @@ function crosschainPrice(ticker) { }
 function asset(ticker, chainID) {
   return queue.queuedTask(
     () => {
-      console.log("execute gecko.get with timeout " + geckoTimeout, ticker);
+//      console.log("execute gecko.get with timeout " + geckoTimeout, ticker);
       var cacheKey = `gecko-asset-${_.toLower(ticker)}`;
       var cached = cache.check(cacheKey);
       var p;
@@ -217,7 +217,7 @@ function asset(ticker, chainID) {
       } else {
         p = doGeckoRequest({ ticker })
           .then((r) => {
-            console.log("setting cache " + cacheKey);
+//            console.log("setting cache " + cacheKey);
             return cache.set(cacheKey, r);
           })
           .catch((err) => {

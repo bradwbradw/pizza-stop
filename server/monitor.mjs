@@ -65,16 +65,12 @@ var jobMap = {
   },
   "update assets": {
     enabled: true,
-    interval: "1 hour",
+    interval: "24 hours",
     action: () => {
-      var p = googleSheets
-        .sheetTickers();
-      return p
+      return googleSheets
+        .sheetTickers()
         .then(t=>{
-          console.log("sheet tickers", t);
           assetData.addTickers(t);
-      }).catch(e =>{
-
       })
         .then(assetData.updateAll)
         .then(googleSheets.printPrices);
@@ -115,7 +111,7 @@ var jobMap = {
   },
   xen: {
     enabled: false,
-    interval: "2 minutes",
+    interval: "15 minutes",
     fetch: () => {
       //      return xen.xenCheck([11], ["43114"]);
       return xen.xenCheck(
