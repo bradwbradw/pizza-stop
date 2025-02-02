@@ -1,7 +1,6 @@
 # pizza stop
 
-a simple crypto-currency portfolio tracker
-
+bluegreencrypto api backend
 
 # dev notes
 
@@ -13,4 +12,4 @@ In another console window, run `npm run dev-ui` to start browsersync for css inj
 
 ## to update prod
 
-only work in branch other than master. if working branch is `ps` then in glitch go to terminal and type `git merge ps; refresh;` if merge comment thing pops up, ignore with ctrl-x
+tba
